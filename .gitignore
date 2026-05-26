@@ -10,7 +10,7 @@
 **/node_modules/
 NextCloudShot.NextcloudApp/js/*.js.map
 NextCloudShot.NextcloudApp/css/*.css
-!NextCloudShot.NextcloudApp/css/cloudshot.scss
+!NextCloudShot.NextcloudApp/css/nextcloudshot.scss
 
 # Local environment
 .env

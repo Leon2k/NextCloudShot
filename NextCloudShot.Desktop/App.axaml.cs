@@ -23,8 +23,10 @@ public sealed partial class App : Application
         {
             HttpClient httpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
             INextCloudShotStorageClient storage = new NextcloudStorageClient(httpClient);
+            ICredentialVault credentialVault = new DpapiCredentialVault();
+            IDesktopSettingsStore settingsStore = new JsonDesktopSettingsStore();
             IAnnotationRenderer renderer = new SkiaAnnotationRenderer();
-            MainWindowViewModel mainVm = new(storage);
+            MainWindowViewModel mainVm = new(storage, settingsStore, credentialVault);
             MainWindow mainWindow = new() { DataContext = mainVm };
             DesktopClipboardService clipboard = new(() => mainWindow.Clipboard);
             ScreenshotUploadWorkflow uploadWorkflow = new(renderer, storage, clipboard);
@@ -47,6 +49,7 @@ public sealed partial class App : Application
 
             desktop.MainWindow = mainWindow;
             desktop.Exit += (_, _) => _captureCoordinator?.Dispose();
+            _ = mainVm.LoadSettingsAsync();
         }
         base.OnFrameworkInitializationCompleted();
     }

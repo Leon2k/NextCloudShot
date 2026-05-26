@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-  <id>cloudshot</id>
+  <id>nextcloudshot</id>
   <name>NextCloudShot</name>
   <summary>Screenshot gallery companion for the NextCloudShot desktop client</summary>
   <description><![CDATA[
@@ -18,9 +18,9 @@ It reads screenshots from a user-configurable folder, displays previews and prep
   <navigations>
     <navigation>
       <name>NextCloudShot</name>
-      <route>cloudshot.page.index</route>
+      <route>nextcloudshot.page.index</route>
       <order>55</order>
-      <icon>cloudshot.svg</icon>
+      <icon>nextcloudshot.svg</icon>
     </navigation>
   </navigations>
 </info>

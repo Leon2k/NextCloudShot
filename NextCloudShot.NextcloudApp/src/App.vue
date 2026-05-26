@@ -46,7 +46,7 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const { data } = await axios.get(generateUrl('/apps/cloudshot/api/screenshots'))
+    const { data } = await axios.get(generateUrl('/apps/nextcloudshot/api/screenshots'))
     folder.value = data.folder
     items.value = data.screenshots
   } catch (exception) {
@@ -59,7 +59,7 @@ async function load() {
 async function saveFolder() {
   error.value = ''
   try {
-    await axios.put(generateUrl('/apps/cloudshot/api/settings'), { folder: folder.value })
+    await axios.put(generateUrl('/apps/nextcloudshot/api/settings'), { folder: folder.value })
     await load()
   } catch (exception) {
     error.value = exception.message ?? 'Unable to save folder.'

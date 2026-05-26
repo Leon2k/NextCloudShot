@@ -33,7 +33,7 @@ Acceptance: uploaded file opens from the copied public URL.
 ## Milestone 4 - server companion
 
 - Start the provided Nextcloud Docker environment.
-- Build Vue assets and enable `cloudshot` app.
+- Build Vue assets and enable `nextcloudshot` app.
 - Verify configured folder listing and image preview/gallery actions.
 - Implement copy-link action using server-side OCS services or client endpoints.
 

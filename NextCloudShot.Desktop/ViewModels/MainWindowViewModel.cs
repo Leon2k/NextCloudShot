@@ -1,12 +1,16 @@
 using System.Windows.Input;
 using NextCloudShot.Core.Contracts;
 using NextCloudShot.Core.Models;
+using NextCloudShot.Desktop.Services;
 
 namespace NextCloudShot.Desktop.ViewModels;
 
 public sealed class MainWindowViewModel : ObservableObject
 {
     private readonly INextCloudShotStorageClient _storage;
+    private readonly IDesktopSettingsStore _settingsStore;
+    private readonly ICredentialVault _credentialVault;
+    private const string AppPasswordCredentialKey = "nextcloud-app-password";
     private string _serverUrl = "https://cloud.example.ru/";
     private string _username = string.Empty;
     private string _appPassword = string.Empty;
@@ -14,11 +18,17 @@ public sealed class MainWindowViewModel : ObservableObject
     private bool _createPublicLink = true;
     private string _status = "Ready. PrintScreen: region; Alt + PrintScreen: active window.";
 
-    public MainWindowViewModel(INextCloudShotStorageClient storage)
+    public MainWindowViewModel(
+        INextCloudShotStorageClient storage,
+        IDesktopSettingsStore settingsStore,
+        ICredentialVault credentialVault)
     {
         _storage = storage;
+        _settingsStore = settingsStore;
+        _credentialVault = credentialVault;
         CaptureRegionCommand = new RelayCommand(() => CaptureRequested?.Invoke(this, CaptureMode.Region));
         CaptureWindowCommand = new RelayCommand(() => CaptureRequested?.Invoke(this, CaptureMode.ActiveWindow));
+        SaveSettingsCommand = new AsyncRelayCommand(() => SaveSettingsAsync(updateStatus: true));
         TestConnectionCommand = new AsyncRelayCommand(TestConnectionAsync);
     }
 
@@ -33,7 +43,30 @@ public sealed class MainWindowViewModel : ObservableObject
 
     public ICommand CaptureRegionCommand { get; }
     public ICommand CaptureWindowCommand { get; }
+    public ICommand SaveSettingsCommand { get; }
     public ICommand TestConnectionCommand { get; }
+
+    public async Task LoadSettingsAsync()
+    {
+        try
+        {
+            DesktopSettings? settings = await _settingsStore.LoadAsync();
+            if (settings is not null)
+            {
+                ServerUrl = settings.ServerUrl;
+                Username = settings.Username;
+                UploadFolder = settings.UploadFolder;
+                CreatePublicLink = settings.CreatePublicLink;
+            }
+
+            AppPassword = await _credentialVault.ReadSecretAsync(AppPasswordCredentialKey) ?? string.Empty;
+            Status = settings is null ? Status : "Settings loaded. PrintScreen: region; Alt + PrintScreen: active window.";
+        }
+        catch (Exception exception)
+        {
+            Status = $"Unable to load saved settings: {exception.Message}";
+        }
+    }
 
     public NextcloudConnectionSettings CreateConnectionSettings()
     {
@@ -54,11 +87,35 @@ public sealed class MainWindowViewModel : ObservableObject
         {
             Status = "Testing connection...";
             await _storage.TestConnectionAsync(CreateConnectionSettings());
+            await SaveSettingsAsync(updateStatus: false);
             Status = "Connection accepted by Nextcloud.";
         }
         catch (Exception exception)
         {
             Status = exception.Message;
+        }
+    }
+
+    private async Task SaveSettingsAsync(bool updateStatus)
+    {
+        await _settingsStore.SaveAsync(new DesktopSettings(
+            ServerUrl.Trim(),
+            Username.Trim(),
+            UploadFolder.Trim(),
+            CreatePublicLink));
+
+        if (string.IsNullOrWhiteSpace(AppPassword))
+        {
+            await _credentialVault.RemoveSecretAsync(AppPasswordCredentialKey);
+        }
+        else
+        {
+            await _credentialVault.StoreSecretAsync(AppPasswordCredentialKey, AppPassword);
+        }
+
+        if (updateStatus)
+        {
+            Status = "Settings saved.";
         }
     }
 }

@@ -5,7 +5,7 @@
 NextCloudShot is deliberately one repository with two products:
 
 1. **NextCloudShot Desktop** - owns native user interaction: global hotkeys, screen capture, region overlay, editor, uploading and clipboard.
-2. **cloudshot Nextcloud App** - owns web browsing of screenshot files and server-side user settings; it is not required for desktop uploads.
+2. **nextcloudshot Nextcloud App** - owns web browsing of screenshot files and server-side user settings; it is not required for desktop uploads.
 
 The division prevents the desktop product from being blocked by Nextcloud app deployment or App Store review.
 

@@ -2,4 +2,4 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import './style.scss'
 
-createApp(App).mount('#cloudshot-app')
+createApp(App).mount('#nextcloudshot-app')

@@ -25,6 +25,7 @@
     <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
       <Button Classes="primary" Command="{Binding CaptureRegionCommand}" Content="Capture region  (PrintScreen)" />
       <Button Command="{Binding CaptureWindowCommand}" Content="Capture window  (Alt + PrintScreen)" />
+      <Button Command="{Binding SaveSettingsCommand}" Content="Save settings" />
       <Button Command="{Binding TestConnectionCommand}" Content="Test cloud" />
     </StackPanel>
 

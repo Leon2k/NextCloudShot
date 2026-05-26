@@ -18,7 +18,7 @@ NextCloudShot is a self-hosted screenshot workflow for Nextcloud: a desktop capt
 | `NextCloudShot.Infrastructure.Nextcloud` | WebDAV upload and OCS public-share client. |
 | `NextCloudShot.Platform.Windows` | Windows capture and native global hotkeys. |
 | `NextCloudShot.Desktop` | Avalonia desktop application and screenshot editor. |
-| `NextCloudShot.NextcloudApp` | Nextcloud app: gallery, personal settings and API. The Nextcloud app id remains `cloudshot`. |
+| `NextCloudShot.NextcloudApp` | Nextcloud app: gallery, personal settings and API. The Nextcloud app id is `nextcloudshot`. |
 | `tools/dev-nextcloud` | Local Nextcloud 33 Docker environment. |
 
 ## What is already scaffolded
@@ -36,7 +36,7 @@ NextCloudShot is a self-hosted screenshot workflow for Nextcloud: a desktop capt
 
 ### Nextcloud web app
 
-- Installable app id: `cloudshot` (no `Nextcloud` trademark in its app name).
+- Installable app id: `nextcloudshot`. Public App Store naming still needs review because Nextcloud guidelines disallow `Nextcloud` in app names.
 - Target compatibility in `info.xml`: Nextcloud **32-33**.
 - Navigation entry and Vue-based gallery view.
 - API controllers for listing screenshots and storing each user's upload-folder setting.
@@ -66,8 +66,18 @@ In the desktop settings screen provide:
 
 - Server URL, for example `https://cloud.example.ru`
 - Username
-- Nextcloud app password
+- Nextcloud app password, stored with Windows DPAPI after saving or a successful connection test
 - Upload folder, for example `/NextCloudShot/Screenshots`
+
+## Windows release packaging
+
+```powershell
+.\tools\publish-desktop-win-x64.ps1
+```
+
+The first installer target is Inno Setup. After installing Inno Setup locally, build the setup from `installer\windows\NextCloudShot.iss`; it consumes the published files in `artifacts\desktop-win-x64`.
+
+If NuGet runtime-pack restore is slow or blocked locally, use `.\tools\publish-desktop-win-x64.ps1 -FrameworkDependent` for a quick installer smoke test; public release builds should stay self-contained in CI.
 
 ## Nextcloud app development
 
@@ -78,7 +88,7 @@ cd tools\dev-nextcloud
 docker compose up -d
 ```
 
-Then copy or symlink `NextCloudShot.NextcloudApp` into the development server custom apps folder as `cloudshot`, as described in `docs/nextcloud-app.md`.
+Then copy or symlink `NextCloudShot.NextcloudApp` into the development server custom apps folder as `nextcloudshot`, as described in `docs/nextcloud-app.md`.
 
 For frontend assets:
 

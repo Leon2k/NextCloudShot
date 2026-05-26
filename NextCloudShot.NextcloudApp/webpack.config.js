@@ -2,7 +2,7 @@ const path = require('path')
 const { VueLoaderPlugin } = require('vue-loader')
 
 module.exports = {
-  entry: { 'cloudshot-main': path.resolve(__dirname, 'src', 'main.js') },
+  entry: { 'nextcloudshot-main': path.resolve(__dirname, 'src', 'main.js') },
   output: {
     path: path.resolve(__dirname, 'js'),
     filename: '[name].js',

@@ -1,5 +1,5 @@
 <?php
 /** @var array $_ */
-script('cloudshot', 'cloudshot-main');
+script('nextcloudshot', 'nextcloudshot-main');
 ?>
-<div id="cloudshot-app"></div>
+<div id="nextcloudshot-app"></div>

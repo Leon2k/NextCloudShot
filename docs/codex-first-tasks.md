@@ -2,9 +2,9 @@
 
 The scaffold is meant to be pushed to Git first, then hardened in small verifiable changes.
 
-## Milestone 1 — build and capture on Windows
+## Milestone 1 - build and capture on Windows
 
-- Restore/build `CloudShot.sln` on Windows with .NET 8 SDK.
+- Restore/build `NextCloudShot.sln` on Windows with .NET 8 SDK.
 - Fix any Avalonia/package API mismatches without collapsing the project boundaries.
 - Launch desktop shell and ensure `PrintScreen` opens the region overlay.
 - Ensure `Alt + PrintScreen` captures the foreground window.
@@ -12,7 +12,7 @@ The scaffold is meant to be pushed to Git first, then hardened in small verifiab
 
 Acceptance: both hotkeys reliably produce an editable source image.
 
-## Milestone 2 — editor parity baseline
+## Milestone 2 - editor parity baseline
 
 - Verify and repair pointer mapping in `AnnotationCanvasControl`.
 - Complete crop, rectangle, arrow, freehand, text and pixelation interactions.
@@ -21,7 +21,7 @@ Acceptance: both hotkeys reliably produce an editable source image.
 
 Acceptance: the encoded PNG contains exactly the visible crop and annotations.
 
-## Milestone 3 — real Nextcloud upload
+## Milestone 3 - real Nextcloud upload
 
 - Move credentials into Windows Credential Manager/DPAPI implementation.
 - Add login/connect test UI and error states.
@@ -30,7 +30,7 @@ Acceptance: the encoded PNG contains exactly the visible crop and annotations.
 
 Acceptance: uploaded file opens from the copied public URL.
 
-## Milestone 4 — server companion
+## Milestone 4 - server companion
 
 - Start the provided Nextcloud Docker environment.
 - Build Vue assets and enable `cloudshot` app.

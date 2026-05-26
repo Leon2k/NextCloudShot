@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <Authors>CloudShot contributors</Authors>
-    <Product>CloudShot</Product>
+    <Authors>NextCloudShot contributors</Authors>
+    <Product>NextCloudShot</Product>
     <Version>0.1.0-alpha.1</Version>
   </PropertyGroup>
 </Project>

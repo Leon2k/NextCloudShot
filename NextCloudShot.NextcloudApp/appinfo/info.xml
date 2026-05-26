@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+  <id>cloudshot</id>
+  <name>NextCloudShot</name>
+  <summary>Screenshot gallery companion for the NextCloudShot desktop client</summary>
+  <description><![CDATA[
+NextCloudShot provides a clean screenshot gallery for files uploaded by the NextCloudShot desktop client.
+It reads screenshots from a user-configurable folder, displays previews and prepares a basis for link management.
+  ]]></description>
+  <version>0.1.0-alpha.1</version>
+  <licence>agpl</licence>
+  <author>NextCloudShot contributors</author>
+  <namespace>NextCloudShot</namespace>
+  <category>files</category>
+  <dependencies>
+    <nextcloud min-version="32" max-version="33" />
+  </dependencies>
+  <navigations>
+    <navigation>
+      <name>NextCloudShot</name>
+      <route>cloudshot.page.index</route>
+      <order>55</order>
+      <icon>cloudshot.svg</icon>
+    </navigation>
+  </navigations>
+</info>

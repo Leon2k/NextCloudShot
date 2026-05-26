@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Platform-neutral NextCloudShot contracts and screenshot document model.</Description>
+  </PropertyGroup>
+</Project>

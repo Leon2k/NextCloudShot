@@ -8,9 +8,9 @@
 
 # Node / Nextcloud app output
 **/node_modules/
-src/server/cloudshot/js/*.js.map
-src/server/cloudshot/css/*.css
-!src/server/cloudshot/css/cloudshot.scss
+NextCloudShot.NextcloudApp/js/*.js.map
+NextCloudShot.NextcloudApp/css/*.css
+!NextCloudShot.NextcloudApp/css/cloudshot.scss
 
 # Local environment
 .env

@@ -1,24 +1,24 @@
-# CloudShot
+# NextCloudShot
 
-CloudShot is a self-hosted screenshot workflow for Nextcloud: a desktop capture/editor client plus an optional Nextcloud web gallery.
+NextCloudShot is a self-hosted screenshot workflow for Nextcloud: a desktop capture/editor client plus an optional Nextcloud web gallery.
 
 > Current status: **development scaffold / alpha foundation**. Windows is the first supported runtime for native capture and global hotkeys; the client architecture keeps capture, hotkeys and credential storage replaceable for Linux and macOS.
 
 ## Target workflow
 
-`PrintScreen` → select a region → crop/annotate/censor → upload to Nextcloud → public link copied to clipboard.
+`PrintScreen` -> select a region -> crop/annotate/censor -> upload to Nextcloud -> public link copied to clipboard.
 
-`Alt + PrintScreen` → capture the foreground window → edit → upload → copy link.
+`Alt + PrintScreen` -> capture the foreground window -> edit -> upload -> copy link.
 
 ## Included projects
 
 | Path | Purpose |
 | --- | --- |
-| `src/client/CloudShot.Core` | Platform-neutral models and service contracts. |
-| `src/client/CloudShot.Infrastructure.Nextcloud` | WebDAV upload and OCS public-share client. |
-| `src/client/CloudShot.Platform.Windows` | Windows capture and native global hotkeys. |
-| `src/client/CloudShot.Desktop` | Avalonia desktop application and screenshot editor. |
-| `src/server/cloudshot` | Nextcloud app: gallery, personal settings and API. |
+| `NextCloudShot.Core` | Platform-neutral models and service contracts. |
+| `NextCloudShot.Infrastructure.Nextcloud` | WebDAV upload and OCS public-share client. |
+| `NextCloudShot.Platform.Windows` | Windows capture and native global hotkeys. |
+| `NextCloudShot.Desktop` | Avalonia desktop application and screenshot editor. |
+| `NextCloudShot.NextcloudApp` | Nextcloud app: gallery, personal settings and API. The Nextcloud app id remains `cloudshot`. |
 | `tools/dev-nextcloud` | Local Nextcloud 33 Docker environment. |
 
 ## What is already scaffolded
@@ -37,7 +37,7 @@ CloudShot is a self-hosted screenshot workflow for Nextcloud: a desktop capture/
 ### Nextcloud web app
 
 - Installable app id: `cloudshot` (no `Nextcloud` trademark in its app name).
-- Target compatibility in `info.xml`: Nextcloud **32–33**.
+- Target compatibility in `info.xml`: Nextcloud **32-33**.
 - Navigation entry and Vue-based gallery view.
 - API controllers for listing screenshots and storing each user's upload-folder setting.
 - Files are not duplicated into an app database; the app works over the user's Nextcloud files folder.
@@ -56,11 +56,10 @@ Prerequisites:
 - Windows 10/11 for native capture/hotkey testing
 
 ```powershell
-cd src\client
-# From repository root, Visual Studio can open CloudShot.sln directly.
-dotnet restore ..\..\CloudShot.sln
-dotnet build ..\..\CloudShot.sln
- dotnet run --project .\CloudShot.Desktop\CloudShot.Desktop.csproj
+# From repository root, Visual Studio can open NextCloudShot.sln directly.
+dotnet restore .\NextCloudShot.sln
+dotnet build .\NextCloudShot.sln
+dotnet run --project .\NextCloudShot.Desktop\NextCloudShot.Desktop.csproj
 ```
 
 In the desktop settings screen provide:
@@ -68,7 +67,7 @@ In the desktop settings screen provide:
 - Server URL, for example `https://cloud.example.ru`
 - Username
 - Nextcloud app password
-- Upload folder, for example `/CloudShot/Screenshots`
+- Upload folder, for example `/NextCloudShot/Screenshots`
 
 ## Nextcloud app development
 
@@ -79,12 +78,12 @@ cd tools\dev-nextcloud
 docker compose up -d
 ```
 
-Then copy or symlink `src/server/cloudshot` into the development server custom apps folder as described in `docs/nextcloud-app.md`.
+Then copy or symlink `NextCloudShot.NextcloudApp` into the development server custom apps folder as `cloudshot`, as described in `docs/nextcloud-app.md`.
 
 For frontend assets:
 
 ```powershell
-cd src\server\cloudshot
+cd NextCloudShot.NextcloudApp
 npm install
 npm run build
 ```

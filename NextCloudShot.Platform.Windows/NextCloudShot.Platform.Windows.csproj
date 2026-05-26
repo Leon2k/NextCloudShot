@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Native Windows adapters: PrintScreen hotkeys and pixel capture.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NextCloudShot.Core\NextCloudShot.Core.csproj" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.12" />
+  </ItemGroup>
+</Project>

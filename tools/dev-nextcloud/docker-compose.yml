@@ -29,7 +29,7 @@ services:
       - redis
     volumes:
       - nextcloud:/var/www/html
-      - ../../src/server/cloudshot:/var/www/html/custom_apps/cloudshot
+      - ../../NextCloudShot.NextcloudApp:/var/www/html/custom_apps/cloudshot
 
 volumes:
   db:

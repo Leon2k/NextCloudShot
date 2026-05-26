@@ -6,12 +6,12 @@ The `cloudshot` server app adds a web gallery and per-user folder settings. The 
 
 ## Local development environment
 
-`tools/dev-nextcloud/docker-compose.yml` launches Nextcloud 33 with PostgreSQL and Redis. After the containers start, install Nextcloud in the browser once and copy the app folder into the container:
+`tools/dev-nextcloud/docker-compose.yml` launches Nextcloud 33 with PostgreSQL and Redis. After the containers start, install Nextcloud in the browser once and copy the app folder into the container under the app id directory:
 
 ```powershell
 cd tools\dev-nextcloud
 docker compose up -d
-docker compose cp ..\..\src\server\cloudshot nextcloud:/var/www/html/custom_apps/cloudshot
+docker compose cp ..\..\NextCloudShot.NextcloudApp nextcloud:/var/www/html/custom_apps/cloudshot
 docker compose exec -u www-data nextcloud php occ app:enable cloudshot
 ```
 
@@ -20,7 +20,7 @@ After editing PHP/Vue sources, copy the folder again or bind-mount it during act
 ## Frontend build
 
 ```powershell
-cd src\server\cloudshot
+cd NextCloudShot.NextcloudApp
 npm install
 npm run build
 ```

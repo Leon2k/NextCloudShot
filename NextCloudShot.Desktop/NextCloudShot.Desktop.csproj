@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <Description>Cross-platform NextCloudShot desktop UI. Windows native adapters are the first implemented platform.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.6" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.6" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NextCloudShot.Core\NextCloudShot.Core.csproj" />
+    <ProjectReference Include="..\NextCloudShot.Infrastructure.Nextcloud\NextCloudShot.Infrastructure.Nextcloud.csproj" />
+    <ProjectReference Include="..\NextCloudShot.Platform.Windows\NextCloudShot.Platform.Windows.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+</Project>

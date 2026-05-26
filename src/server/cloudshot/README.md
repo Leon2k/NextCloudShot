@@ -1,5 +1,0 @@
-# CloudShot Nextcloud app
-
-Optional web companion for CloudShot Desktop. Install it as `custom_apps/cloudshot`, run `npm install && npm run build`, and enable it with `php occ app:enable cloudshot`.
-
-Current scope: user folder setting and gallery listing/preview. Public-link management is intentionally left for the next iteration because the desktop client already creates public links through the official OCS API.

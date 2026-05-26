@@ -2,13 +2,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Core", "src\client\CloudShot.Core\NextCloudShot.Core.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB01}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Core", "NextCloudShot.Core\NextCloudShot.Core.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Infrastructure.Nextcloud", "src\client\CloudShot.Infrastructure.Nextcloud\NextCloudShot.Infrastructure.Nextcloud.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Infrastructure.Nextcloud", "NextCloudShot.Infrastructure.Nextcloud\NextCloudShot.Infrastructure.Nextcloud.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Platform.Windows", "src\client\CloudShot.Platform.Windows\NextCloudShot.Platform.Windows.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Platform.Windows", "NextCloudShot.Platform.Windows\NextCloudShot.Platform.Windows.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Desktop", "src\client\CloudShot.Desktop\NextCloudShot.Desktop.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB04}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Desktop", "NextCloudShot.Desktop\NextCloudShot.Desktop.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

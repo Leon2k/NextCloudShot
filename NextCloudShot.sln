@@ -10,6 +10,26 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Platform.Wind
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NextCloudShot.Desktop", "NextCloudShot.Desktop\NextCloudShot.Desktop.csproj", "{DC67567D-44F4-4E02-9F03-C58C9445BB04}"
 EndProject
+Project("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}") = "NextCloudShot.NextcloudApp", "NextCloudShot.NextcloudApp", "{DC67567D-44F4-4E02-9F03-C58C9445BB05}"
+	ProjectSection(SolutionItems) = preProject
+		NextCloudShot.NextcloudApp\README.md = NextCloudShot.NextcloudApp\README.md
+		NextCloudShot.NextcloudApp\composer.json = NextCloudShot.NextcloudApp\composer.json
+		NextCloudShot.NextcloudApp\package.json = NextCloudShot.NextcloudApp\package.json
+		NextCloudShot.NextcloudApp\package-lock.json = NextCloudShot.NextcloudApp\package-lock.json
+		NextCloudShot.NextcloudApp\webpack.config.js = NextCloudShot.NextcloudApp\webpack.config.js
+		NextCloudShot.NextcloudApp\appinfo\info.xml = NextCloudShot.NextcloudApp\appinfo\info.xml
+		NextCloudShot.NextcloudApp\appinfo\routes.php = NextCloudShot.NextcloudApp\appinfo\routes.php
+		NextCloudShot.NextcloudApp\lib\AppInfo\Application.php = NextCloudShot.NextcloudApp\lib\AppInfo\Application.php
+		NextCloudShot.NextcloudApp\lib\Controller\ApiController.php = NextCloudShot.NextcloudApp\lib\Controller\ApiController.php
+		NextCloudShot.NextcloudApp\lib\Controller\PageController.php = NextCloudShot.NextcloudApp\lib\Controller\PageController.php
+		NextCloudShot.NextcloudApp\lib\Controller\SettingsController.php = NextCloudShot.NextcloudApp\lib\Controller\SettingsController.php
+		NextCloudShot.NextcloudApp\lib\Service\ScreenshotLibraryService.php = NextCloudShot.NextcloudApp\lib\Service\ScreenshotLibraryService.php
+		NextCloudShot.NextcloudApp\src\App.vue = NextCloudShot.NextcloudApp\src\App.vue
+		NextCloudShot.NextcloudApp\src\main.js = NextCloudShot.NextcloudApp\src\main.js
+		NextCloudShot.NextcloudApp\src\style.scss = NextCloudShot.NextcloudApp\src\style.scss
+		NextCloudShot.NextcloudApp\templates\index.php = NextCloudShot.NextcloudApp\templates\index.php
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

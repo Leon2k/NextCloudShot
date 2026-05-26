@@ -2,11 +2,11 @@
   <main class="nextcloudshot">
     <header class="toolbar">
       <div>
-        <h2>NextCloudShot</h2>
+        <h2>Скриншоты</h2>
         <p>Screenshots from the desktop client</p>
       </div>
       <div class="settings">
-        <input v-model="folder" aria-label="Screenshots folder" placeholder="/NextCloudShot/Screenshots">
+        <input v-model="folder" aria-label="Screenshots folder" placeholder="/Screenshots">
         <NcButton type="secondary" @click="saveFolder">Save folder</NcButton>
         <NcButton type="primary" @click="load">Refresh</NcButton>
       </div>
@@ -38,7 +38,7 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcEmptyContent from '@nextcloud/vue/components/NcEmptyContent'
 
 const items = ref([])
-const folder = ref('/NextCloudShot/Screenshots')
+const folder = ref('/Screenshots')
 const loading = ref(false)
 const error = ref('')
 

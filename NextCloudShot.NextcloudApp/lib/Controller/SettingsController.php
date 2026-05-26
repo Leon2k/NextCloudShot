@@ -28,7 +28,7 @@ class SettingsController extends Controller {
     public function get(): DataResponse {
         $userId = $this->requireUserId();
         return new DataResponse([
-            'folder' => $this->config->getUserValue($userId, Application::APP_ID, 'folder', '/NextCloudShot/Screenshots'),
+            'folder' => $this->config->getUserValue($userId, Application::APP_ID, 'folder', Application::DEFAULT_FOLDER),
         ]);
     }
 
@@ -36,7 +36,7 @@ class SettingsController extends Controller {
     public function save(string $folder): DataResponse {
         $folder = '/' . trim(str_replace('..', '', $folder), '/');
         if ($folder === '/') {
-            $folder = '/NextCloudShot/Screenshots';
+            $folder = Application::DEFAULT_FOLDER;
         }
         $this->config->setUserValue($this->requireUserId(), Application::APP_ID, 'folder', $folder);
         return new DataResponse(['folder' => $folder]);

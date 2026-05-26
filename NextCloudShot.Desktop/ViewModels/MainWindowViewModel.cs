@@ -14,7 +14,7 @@ public sealed class MainWindowViewModel : ObservableObject
     private string _serverUrl = "https://cloud.example.ru/";
     private string _username = string.Empty;
     private string _appPassword = string.Empty;
-    private string _uploadFolder = "/NextCloudShot/Screenshots";
+    private string _uploadFolder = NextcloudDefaults.UploadFolder;
     private bool _createPublicLink = true;
     private string _status = "Ready. PrintScreen: region; Alt + PrintScreen: active window.";
 

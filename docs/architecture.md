@@ -79,7 +79,7 @@ Credentials should ultimately be stored in an OS vault. The scaffold exposes `IC
 
 ### Server application
 
-The web app reads from a configured per-user folder, default `/NextCloudShot/Screenshots`, using Nextcloud's file APIs. It does not need to accept desktop uploads itself and does not duplicate screenshot metadata until there is a real need for extended link history/tagging.
+The web app reads from a configured per-user folder, default `/Screenshots`, using Nextcloud's file APIs. It does not need to accept desktop uploads itself and does not duplicate screenshot metadata until there is a real need for extended link history/tagging.
 
 ## Version assumptions
 

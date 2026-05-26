@@ -29,7 +29,7 @@ class ApiController extends Controller {
      */
     public function screenshots(): DataResponse {
         $userId = $this->requireUserId();
-        $folder = $this->config->getUserValue($userId, Application::APP_ID, 'folder', '/NextCloudShot/Screenshots');
+        $folder = $this->config->getUserValue($userId, Application::APP_ID, 'folder', Application::DEFAULT_FOLDER);
         return new DataResponse([
             'folder' => $folder,
             'screenshots' => $this->library->listForUser($userId, $folder),

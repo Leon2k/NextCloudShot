@@ -8,6 +8,11 @@ public sealed record NextcloudConnectionSettings(
     bool CreatePublicLink,
     int? ShareExpiryDays = null);
 
+public static class NextcloudDefaults
+{
+    public const string UploadFolder = "/Screenshots";
+}
+
 public sealed record ScreenshotUpload(
     string FileName,
     byte[] PngBytes,

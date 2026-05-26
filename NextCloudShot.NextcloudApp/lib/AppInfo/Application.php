@@ -11,6 +11,7 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 class Application extends App implements IBootstrap {
     public const APP_ID = 'nextcloudshot';
+    public const DEFAULT_FOLDER = '/Screenshots';
 
     public function __construct(array $urlParams = []) {
         parent::__construct(self::APP_ID, $urlParams);

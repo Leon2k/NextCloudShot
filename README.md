@@ -67,7 +67,7 @@ In the desktop settings screen provide:
 - Server URL, for example `https://cloud.example.ru`
 - Username
 - Nextcloud app password, stored with Windows DPAPI after saving or a successful connection test
-- Upload folder, for example `/NextCloudShot/Screenshots`
+- Upload folder, default `/Screenshots`
 
 ## Windows release packaging
 

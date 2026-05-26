@@ -17,7 +17,7 @@ It reads screenshots from a user-configurable folder, displays previews and prep
   </dependencies>
   <navigations>
     <navigation>
-      <name>NextCloudShot</name>
+      <name>Скриншоты</name>
       <route>nextcloudshot.page.index</route>
       <order>55</order>
       <icon>nextcloudshot.svg</icon>

@@ -1,0 +1,21 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,csproj,sln,axaml,ps1}]
+end_of_line = crlf
+
+[*.{json,js,mjs,ts,vue,php,xml,yml,yaml,md,scss}]
+indent_size = 2
+
+[*.cs]
+dotnet_diagnostic.CS1591.severity = none
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_elsewhere = false:suggestion

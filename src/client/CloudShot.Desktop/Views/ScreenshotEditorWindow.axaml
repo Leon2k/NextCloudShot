@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:NextCloudShot.Desktop.Controls"
+        x:Class="NextCloudShot.Desktop.Views.ScreenshotEditorWindow"
+        Title="NextCloudShot Editor" Width="1180" Height="820" MinWidth="820" MinHeight="560">
+  <Grid RowDefinitions="Auto,*,Auto" Background="#0D1117">
+    <Border Grid.Row="0" Background="#161C23" Padding="12">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Command="{Binding SelectToolCommand}" CommandParameter="Crop" Content="Crop" />
+        <Button Command="{Binding SelectToolCommand}" CommandParameter="Arrow" Content="Arrow" />
+        <Button Command="{Binding SelectToolCommand}" CommandParameter="Rectangle" Content="Rectangle" />
+        <Button Command="{Binding SelectToolCommand}" CommandParameter="Pen" Content="Pen" />
+        <Button Command="{Binding SelectToolCommand}" CommandParameter="Pixelate" Content="Pixelate" />
+        <Button Command="{Binding SelectToolCommand}" CommandParameter="Text" Content="Text" />
+        <TextBox Width="190" Text="{Binding TextValue}" Watermark="Text to insert" />
+        <Button Command="{Binding ClearCommand}" Content="Clear drawings" />
+        <Border Width="1" Background="#38424D" Margin="8,0" />
+        <Button Classes="primary" Command="{Binding UploadCommand}" Content="Upload &amp; copy link" />
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <Border HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" BoxShadow="0 8 30 0 #80000000">
+        <controls:AnnotationCanvasControl />
+      </Border>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Padding="14,10" Background="#161C23">
+      <TextBlock Foreground="#D5DDE7" Text="{Binding Status}" />
+    </Border>
+  </Grid>
+</Window>

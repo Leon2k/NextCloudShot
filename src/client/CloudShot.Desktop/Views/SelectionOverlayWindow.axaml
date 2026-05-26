@@ -1,0 +1,16 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="NextCloudShot.Desktop.Views.SelectionOverlayWindow"
+        SystemDecorations="None" ShowInTaskbar="False" Topmost="True"
+        CanResize="False" Background="#50000000">
+  <Grid>
+    <Image x:Name="SourceImage" Stretch="Fill" />
+    <Border Background="#58000000" />
+    <Canvas>
+      <Border x:Name="SelectionBorder" IsVisible="False" BorderBrush="#00A5FF" BorderThickness="2" Background="#2200A5FF" />
+    </Canvas>
+    <Border VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,22" Background="#D020252C" CornerRadius="6" Padding="16,8">
+      <TextBlock Foreground="White" Text="Select an area • Esc to cancel" />
+    </Border>
+  </Grid>
+</Window>

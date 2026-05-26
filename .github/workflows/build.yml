@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  desktop:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore and build desktop solution
+        run: dotnet build CloudShot.sln --configuration Release
+
+  nextcloud-app-assets:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/server/cloudshot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: src/server/cloudshot/package-lock.json
+      - name: Install and build Vue application
+        run: npm ci
+      - name: Build assets
+        run: npm run build
+      - name: Lint PHP syntax
+        run: find lib appinfo templates -type f -name '*.php' -print0 | xargs -0 -n1 php -l

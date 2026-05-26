@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Nextcloud WebDAV upload and OCS sharing adapter for CloudShot.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CloudShot.Core\NextCloudShot.Core.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,29 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+.vs/
+.idea/
+
+# Node / Nextcloud app output
+**/node_modules/
+src/server/cloudshot/js/*.js.map
+src/server/cloudshot/css/*.css
+!src/server/cloudshot/css/cloudshot.scss
+
+# Local environment
+.env
+.env.*
+!.env.example
+tools/dev-nextcloud/nextcloud/
+tools/dev-nextcloud/db/
+
+# Packaging
+artifacts/
+*.zip
+*.nupkg
+
+# OS
+.DS_Store
+Thumbs.db

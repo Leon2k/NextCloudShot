@@ -28,11 +28,14 @@ Project("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}") = "NextCloudShot.NextcloudApp"
 		NextCloudShot.NextcloudApp\lib\Controller\ApiController.php = NextCloudShot.NextcloudApp\lib\Controller\ApiController.php
 		NextCloudShot.NextcloudApp\lib\Controller\PageController.php = NextCloudShot.NextcloudApp\lib\Controller\PageController.php
 		NextCloudShot.NextcloudApp\lib\Controller\SettingsController.php = NextCloudShot.NextcloudApp\lib\Controller\SettingsController.php
+		NextCloudShot.NextcloudApp\lib\Settings\Personal.php = NextCloudShot.NextcloudApp\lib\Settings\Personal.php
 		NextCloudShot.NextcloudApp\lib\Service\ScreenshotLibraryService.php = NextCloudShot.NextcloudApp\lib\Service\ScreenshotLibraryService.php
 		NextCloudShot.NextcloudApp\src\App.vue = NextCloudShot.NextcloudApp\src\App.vue
 		NextCloudShot.NextcloudApp\src\main.js = NextCloudShot.NextcloudApp\src\main.js
+		NextCloudShot.NextcloudApp\src\settings.js = NextCloudShot.NextcloudApp\src\settings.js
 		NextCloudShot.NextcloudApp\src\style.scss = NextCloudShot.NextcloudApp\src\style.scss
 		NextCloudShot.NextcloudApp\templates\index.php = NextCloudShot.NextcloudApp\templates\index.php
+		NextCloudShot.NextcloudApp\templates\personal_settings.php = NextCloudShot.NextcloudApp\templates\personal_settings.php
 	EndProjectSection
 EndProject
 Global

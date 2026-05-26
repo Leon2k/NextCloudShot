@@ -27,6 +27,8 @@ npm run build
 
 The generated assets are placed in `js/` and `css/` for loading by the PHP template.
 
+The gallery page intentionally stays focused on screenshots. The per-user screenshot folder is configured in Nextcloud personal settings, under the additional settings section.
+
 ## Real server install
 
 Build a release package locally or from GitHub Actions, copy it to the server, and install it under the app id directory:

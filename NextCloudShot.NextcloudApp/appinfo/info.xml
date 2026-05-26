@@ -7,7 +7,7 @@
 NextCloudShot provides a clean screenshot gallery for files uploaded by the NextCloudShot desktop client.
 It reads screenshots from a user-configurable folder, displays previews and prepares a basis for link management.
   ]]></description>
-  <version>0.1.0-alpha.1</version>
+  <version>0.1.0-alpha.2</version>
   <licence>agpl</licence>
   <author>NextCloudShot contributors</author>
   <namespace>NextCloudShot</namespace>
@@ -23,4 +23,7 @@ It reads screenshots from a user-configurable folder, displays previews and prep
       <icon>nextcloudshot.svg</icon>
     </navigation>
   </navigations>
+  <settings>
+    <personal>OCA\NextCloudShot\Settings\Personal</personal>
+  </settings>
 </info>

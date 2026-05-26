@@ -49,6 +49,12 @@ class ScreenshotLibraryService {
                 'y' => 420,
                 'a' => true,
             ]),
+            'fullPreviewUrl' => $this->urlGenerator->linkToRouteAbsolute('core.Preview.getPreviewByFileId', [
+                'fileId' => $file->getId(),
+                'x' => 1920,
+                'y' => 1080,
+                'a' => true,
+            ]),
         ], $images);
     }
 }

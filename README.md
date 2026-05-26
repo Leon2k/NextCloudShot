@@ -69,6 +69,8 @@ In the desktop settings screen provide:
 - Nextcloud app password, stored with Windows DPAPI after saving or a successful connection test
 - Upload folder, default `/Screenshots`
 
+The Nextcloud web app uses the same default folder. The per-user gallery folder can be changed in Nextcloud personal settings under the additional settings section.
+
 ## Windows release packaging
 
 ```powershell

@@ -30,11 +30,9 @@ Acceptance: the encoded PNG contains exactly the visible crop and annotations.
 
 Acceptance: uploaded file opens from the copied public URL.
 
-## Milestone 4 - server companion
+## Milestone 4 - files workflow
 
-- Start the provided Nextcloud Docker environment.
-- Build Vue assets and enable `nextcloudshot` app.
-- Verify configured folder listing and image preview/gallery actions.
-- Implement copy-link action using server-side OCS services or client endpoints.
+- Verify uploaded screenshots appear in the configured localized folder, for example `/Скриншоты` for Russian.
+- Verify the folder and images are usable through the standard Nextcloud Files interface.
 
-Acceptance: screenshots uploaded by the desktop client appear in the web gallery.
+Acceptance: screenshots uploaded by the desktop client appear in Nextcloud Files without a custom server app.

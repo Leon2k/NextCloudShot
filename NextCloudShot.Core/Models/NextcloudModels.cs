@@ -10,8 +10,20 @@ public sealed record NextcloudConnectionSettings(
 
 public static class NextcloudDefaults
 {
-    public const string UploadFolder = "/Screenshots";
+    public const string UploadFolder = "/Скриншоты";
+    public const string EnglishUploadFolder = "/Screenshots";
+
+    public static string GetUploadFolder(string? language) =>
+        language?.StartsWith("ru", StringComparison.OrdinalIgnoreCase) == true
+            ? UploadFolder
+            : EnglishUploadFolder;
+
+    public static bool IsDefaultUploadFolder(string folder) =>
+        string.Equals(folder, UploadFolder, StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(folder, EnglishUploadFolder, StringComparison.OrdinalIgnoreCase);
 }
+
+public sealed record NextcloudConnectionInfo(string? Language);
 
 public sealed record ScreenshotUpload(
     string FileName,

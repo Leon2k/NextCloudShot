@@ -39,4 +39,9 @@ public sealed class ScreenshotDocument
     public void Add(Annotation annotation) => _annotations.Add(annotation);
     public bool Remove(Guid id) => _annotations.RemoveAll(a => a.Id == id) > 0;
     public void ClearAnnotations() => _annotations.Clear();
+    public void ReplaceAnnotations(IEnumerable<Annotation> annotations)
+    {
+        _annotations.Clear();
+        _annotations.AddRange(annotations);
+    }
 }

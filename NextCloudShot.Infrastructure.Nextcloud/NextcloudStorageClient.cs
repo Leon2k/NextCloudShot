@@ -9,7 +9,7 @@ namespace NextCloudShot.Infrastructure.Nextcloud;
 
 public sealed class NextcloudStorageClient(HttpClient httpClient) : INextCloudShotStorageClient
 {
-    public async Task TestConnectionAsync(
+    public async Task<NextcloudConnectionInfo> TestConnectionAsync(
         NextcloudConnectionSettings settings,
         CancellationToken cancellationToken = default)
     {
@@ -20,6 +20,8 @@ public sealed class NextcloudStorageClient(HttpClient httpClient) : INextCloudSh
         {
             throw CreateHttpException("Nextcloud connection test failed", response);
         }
+
+        return new NextcloudConnectionInfo(await GetUserLanguageAsync(settings, cancellationToken));
     }
 
     public async Task<UploadResult> UploadAsync(
@@ -27,7 +29,7 @@ public sealed class NextcloudStorageClient(HttpClient httpClient) : INextCloudSh
         NextcloudConnectionSettings settings,
         CancellationToken cancellationToken = default)
     {
-        string folder = NormalizeRemotePath(settings.UploadFolder);
+        string folder = NormalizeRemotePath(await ResolveUploadFolderAsync(settings, cancellationToken));
         await EnsureFolderHierarchyAsync(folder, settings, cancellationToken);
 
         string remotePath = $"{folder.TrimEnd('/')}/{upload.FileName}";
@@ -51,6 +53,57 @@ public sealed class NextcloudStorageClient(HttpClient httpClient) : INextCloudSh
         }
 
         return new UploadResult(remotePath, publicUrl, created);
+    }
+
+    private async Task<string> ResolveUploadFolderAsync(
+        NextcloudConnectionSettings settings,
+        CancellationToken cancellationToken)
+    {
+        if (!NextcloudDefaults.IsDefaultUploadFolder(settings.UploadFolder))
+        {
+            return settings.UploadFolder;
+        }
+
+        string? language = await GetUserLanguageAsync(settings, cancellationToken);
+        return string.IsNullOrWhiteSpace(language)
+            ? settings.UploadFolder
+            : NextcloudDefaults.GetUploadFolder(language);
+    }
+
+    private async Task<string?> GetUserLanguageAsync(
+        NextcloudConnectionSettings settings,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using HttpRequestMessage request = CreateRequest(HttpMethod.Get, BuildOcsUserUrl(settings), settings, isOcs: true);
+            using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            using JsonDocument json = await JsonDocument.ParseAsync(
+                await response.Content.ReadAsStreamAsync(cancellationToken),
+                cancellationToken: cancellationToken);
+            if (json.RootElement.TryGetProperty("ocs", out JsonElement ocs) &&
+                ocs.TryGetProperty("data", out JsonElement data) &&
+                data.TryGetProperty("language", out JsonElement language) &&
+                language.ValueKind == JsonValueKind.String)
+            {
+                return language.GetString();
+            }
+        }
+        catch (HttpRequestException)
+        {
+            return null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+
+        return null;
     }
 
     private async Task EnsureFolderHierarchyAsync(
@@ -173,6 +226,9 @@ public sealed class NextcloudStorageClient(HttpClient httpClient) : INextCloudSh
 
     private static string BuildOcsSharesUrl(NextcloudConnectionSettings settings) =>
         new Uri(settings.ServerUri, "ocs/v2.php/apps/files_sharing/api/v1/shares").ToString();
+
+    private static string BuildOcsUserUrl(NextcloudConnectionSettings settings) =>
+        new Uri(settings.ServerUri, "ocs/v2.php/cloud/user?format=json").ToString();
 
     private static string NormalizeRemotePath(string path) =>
         "/" + path.Trim().Replace('\\', '/').Trim('/');

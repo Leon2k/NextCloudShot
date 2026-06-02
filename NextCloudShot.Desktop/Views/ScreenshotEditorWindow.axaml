@@ -2,31 +2,140 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:NextCloudShot.Desktop.Controls"
         x:Class="NextCloudShot.Desktop.Views.ScreenshotEditorWindow"
-        Title="NextCloudShot Editor" Width="1180" Height="820" MinWidth="820" MinHeight="560">
-  <Grid RowDefinitions="Auto,*,Auto" Background="#0D1117">
-    <Border Grid.Row="0" Background="#161C23" Padding="12">
-      <StackPanel Orientation="Horizontal" Spacing="8">
-        <Button Command="{Binding SelectToolCommand}" CommandParameter="Crop" Content="Crop" />
-        <Button Command="{Binding SelectToolCommand}" CommandParameter="Arrow" Content="Arrow" />
-        <Button Command="{Binding SelectToolCommand}" CommandParameter="Rectangle" Content="Rectangle" />
-        <Button Command="{Binding SelectToolCommand}" CommandParameter="Pen" Content="Pen" />
-        <Button Command="{Binding SelectToolCommand}" CommandParameter="Pixelate" Content="Pixelate" />
-        <Button Command="{Binding SelectToolCommand}" CommandParameter="Text" Content="Text" />
-        <TextBox Width="190" Text="{Binding TextValue}" Watermark="Text to insert" />
-        <Button Command="{Binding ClearCommand}" Content="Clear drawings" />
-        <Border Width="1" Background="#38424D" Margin="8,0" />
-        <Button Classes="primary" Command="{Binding UploadCommand}" Content="Upload &amp; copy link" />
+        Title="NextCloudShot Editor" Width="1280" Height="840" MinWidth="920" MinHeight="620">
+  <Window.Styles>
+    <Style Selector="Button.tool">
+      <Setter Property="MinHeight" Value="42" />
+      <Setter Property="Padding" Value="11,6" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Foreground" Value="#E8EDF2" />
+    </Style>
+    <Style Selector="Button.tool:pointerover">
+      <Setter Property="Background" Value="#35404B" />
+    </Style>
+    <Style Selector="Button.tool.active">
+      <Setter Property="Background" Value="#1269A8" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.option">
+      <Setter Property="Padding" Value="12,5" />
+      <Setter Property="MinHeight" Value="28" />
+      <Setter Property="Background" Value="#353B42" />
+      <Setter Property="BorderBrush" Value="#505860" />
+      <Setter Property="Foreground" Value="#E5E9ED" />
+    </Style>
+    <Style Selector="Button.bottom">
+      <Setter Property="Padding" Value="12,7" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="#DDE3E8" />
+    </Style>
+    <Style Selector="Button.bottom:pointerover">
+      <Setter Property="Background" Value="#303841" />
+    </Style>
+    <Style Selector="Button.swatch">
+      <Setter Property="Width" Value="24" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="BorderBrush" Value="#CDD5DC" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="#20252B">
+    <Menu Grid.Row="0" Background="#181C21" Foreground="#DDE3E8">
+      <MenuItem Header="Файл">
+        <MenuItem Header="Сохранить" Command="{Binding SaveCommand}" />
+        <MenuItem Header="Копировать" Command="{Binding CopyCommand}" />
+        <Separator />
+        <MenuItem Header="Поделиться" Command="{Binding UploadCommand}" />
+      </MenuItem>
+      <MenuItem Header="Правка">
+        <MenuItem Header="Отменить" Command="{Binding UndoCommand}" InputGesture="Ctrl+Z" />
+        <MenuItem Header="Повторить" Command="{Binding RedoCommand}" InputGesture="Ctrl+Y" />
+        <Separator />
+        <MenuItem Header="Очистить рисунки" Command="{Binding ClearCommand}" />
+      </MenuItem>
+      <MenuItem Header="Вид" />
+      <MenuItem Header="Справка" />
+    </Menu>
+
+    <Border Grid.Row="1" Background="#252B32" BorderBrush="#11151A" BorderThickness="0,1">
+      <StackPanel Orientation="Horizontal">
+        <Button Classes="tool" Classes.active="{Binding IsArrowSelected}"
+                Command="{Binding SelectToolCommand}" CommandParameter="Arrow" Content="➜  Стрелки" />
+        <Button Classes="tool" Classes.active="{Binding IsTextSelected}"
+                Command="{Binding SelectToolCommand}" CommandParameter="Text" Content="Aa  Текст" />
+        <Button Classes="tool" Classes.active="{Binding IsRectangleSelected}"
+                Command="{Binding SelectToolCommand}" CommandParameter="Rectangle" Content="□  Фигуры" />
+        <Button Classes="tool" Classes.active="{Binding IsPenSelected}"
+                Command="{Binding SelectToolCommand}" CommandParameter="Pen" Content="✎  Маркер" />
+        <Button Classes="tool" Classes.active="{Binding IsPixelateSelected}"
+                Command="{Binding SelectToolCommand}" CommandParameter="Pixelate" Content="◒  Размыть" />
+        <Button Classes="tool" Classes.active="{Binding IsCropSelected}"
+                Command="{Binding SelectToolCommand}" CommandParameter="Crop" Content="⌗  Обрезать" />
+        <Border Width="1" Margin="4,7" Background="#59616A" />
+        <Button Classes="tool" Command="{Binding UndoCommand}" Content="↶" ToolTip.Tip="Отменить (Ctrl+Z)" />
+        <Button Classes="tool" Command="{Binding RedoCommand}" Content="↷" ToolTip.Tip="Повторить (Ctrl+Y)" />
       </StackPanel>
     </Border>
 
-    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-      <Border HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" BoxShadow="0 8 30 0 #80000000">
-        <controls:AnnotationCanvasControl />
+    <Border Grid.Row="2" MinHeight="38" Background="#171B20" BorderBrush="#11151A" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="10,4">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="7">
+          <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding ShowsStrokeOptions}">
+            <Button Classes="option" Command="{Binding SelectThicknessCommand}" CommandParameter="2" Content="Тонкая" />
+            <Button Classes="option" Command="{Binding SelectThicknessCommand}" CommandParameter="4" Content="Средняя" />
+            <Button Classes="option" Command="{Binding SelectThicknessCommand}" CommandParameter="7" Content="Толстая" />
+          </StackPanel>
+          <StackPanel Orientation="Horizontal" Spacing="7" IsVisible="{Binding IsTextSelected}">
+            <TextBox Width="220" MinHeight="28" Text="{Binding TextValue}" Watermark="Текст для вставки" />
+          </StackPanel>
+          <TextBlock VerticalAlignment="Center" Foreground="#C9D1D9" IsVisible="{Binding IsPixelateSelected}"
+                     Text="Выделите область, которую нужно скрыть" />
+          <TextBlock VerticalAlignment="Center" Foreground="#C9D1D9" IsVisible="{Binding IsCropSelected}"
+                     Text="Протяните рамку по нужной области снимка" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
+          <Button Classes="swatch" Background="#25282B" Command="{Binding SelectColorCommand}" CommandParameter="#25282B" />
+          <Button Classes="swatch" Background="#FFFFFF" Command="{Binding SelectColorCommand}" CommandParameter="#FFFFFF" />
+          <Button Classes="swatch" Background="#4387C5" Command="{Binding SelectColorCommand}" CommandParameter="#4387C5" />
+          <Button Classes="swatch" Background="#F6C84A" Command="{Binding SelectColorCommand}" CommandParameter="#F6C84A" />
+          <Button Classes="swatch" Background="#E45A4F" Command="{Binding SelectColorCommand}" CommandParameter="#E45A4F" />
+          <Button Classes="swatch" Background="#9BC53D" Command="{Binding SelectColorCommand}" CommandParameter="#9BC53D" />
+          <Button Classes="swatch" Background="#8D68AD" Command="{Binding SelectColorCommand}" CommandParameter="#8D68AD" />
+          <Button Classes="swatch" Background="#8A8F95" Command="{Binding SelectColorCommand}" CommandParameter="#8A8F95" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <ScrollViewer Grid.Row="3" Background="#3A4047"
+                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <Border HorizontalAlignment="Center" VerticalAlignment="Center" Margin="52"
+              BoxShadow="0 7 24 0 #90000000">
+        <controls:AnnotationCanvasControl Zoom="{Binding Zoom}" />
       </Border>
     </ScrollViewer>
 
-    <Border Grid.Row="2" Padding="14,10" Background="#161C23">
-      <TextBlock Foreground="#D5DDE7" Text="{Binding Status}" />
+    <Border Grid.Row="4" Background="#181D22" BorderBrush="#11151A" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="14,5">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+          <TextBlock Width="42" VerticalAlignment="Center" Foreground="#DDE3E8" Text="{Binding ZoomPercent}" />
+          <Button Classes="bottom" Command="{Binding ZoomOutCommand}" Content="−" ToolTip.Tip="Уменьшить масштаб" />
+          <Slider Width="135" Minimum="0.2" Maximum="2" SmallChange="0.1" Value="{Binding Zoom}" />
+          <Button Classes="bottom" Command="{Binding ZoomInCommand}" Content="+" ToolTip.Tip="Увеличить масштаб" />
+        </StackPanel>
+        <TextBlock Grid.Column="1" Margin="16,0" VerticalAlignment="Center" Foreground="#AEB8C2"
+                   Text="{Binding Status}" TextTrimming="CharacterEllipsis" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+          <Button Classes="bottom" Command="{Binding CopyCommand}" Content="▣  Копировать" />
+          <Button Classes="bottom" Command="{Binding SaveCommand}" Content="⇩  Сохранить" />
+          <Button Classes="bottom" Command="{Binding UploadCommand}" Content="◉  Поделиться" />
+        </StackPanel>
+      </Grid>
     </Border>
   </Grid>
 </Window>

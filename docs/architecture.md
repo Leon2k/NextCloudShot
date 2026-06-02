@@ -2,12 +2,9 @@
 
 ## Repository split
 
-NextCloudShot is deliberately one repository with two products:
+NextCloudShot is a desktop product. It owns native user interaction: global hotkeys, screen capture, region overlay, editor, uploading and clipboard.
 
-1. **NextCloudShot Desktop** - owns native user interaction: global hotkeys, screen capture, region overlay, editor, uploading and clipboard.
-2. **nextcloudshot Nextcloud App** - owns web browsing of screenshot files and server-side user settings; it is not required for desktop uploads.
-
-The division prevents the desktop product from being blocked by Nextcloud app deployment or App Store review.
+There is no custom server application. Screenshots remain ordinary files and are browsed through the standard Nextcloud Files interface.
 
 ## Desktop boundaries
 
@@ -28,7 +25,7 @@ Cross-platform preparation is made through interfaces in `NextCloudShot.Core`:
 - `IAnnotationRenderer`
 - `INextCloudShotStorageClient`
 
-The first production platform is Windows. Linux/macOS implementations must provide only the OS-adapter layer; editor, uploading and gallery workflows remain shared.
+The first production platform is Windows. Linux/macOS implementations must provide only the OS-adapter layer; editor and uploading workflows remain shared.
 
 ## Desktop capture workflows
 
@@ -77,10 +74,4 @@ The desktop client uses APIs exposed to third-party clients:
 
 Credentials should ultimately be stored in an OS vault. The scaffold exposes `ICredentialVault`; the production Windows implementation should use DPAPI/Credential Manager and never persist an app password in JSON.
 
-### Server application
-
-The web app reads from a configured per-user folder, default `/Screenshots`, using Nextcloud's file APIs. It does not need to accept desktop uploads itself and does not duplicate screenshot metadata until there is a real need for extended link history/tagging.
-
-## Version assumptions
-
-As of 2026-05-26, supported Nextcloud server major versions are 32 and 33 and the latest maintenance version is 33.0.3. `NextCloudShot.NextcloudApp/appinfo/info.xml` is intentionally set to `min-version="32" max-version="33"`; adjust only after testing on the instance you deploy to.
+The target folder default follows the Nextcloud user language, for example `/Скриншоты` for Russian. Users browse uploaded images in Nextcloud Files without installing a custom server component.

@@ -4,7 +4,9 @@ namespace NextCloudShot.Core.Contracts;
 
 public interface INextCloudShotStorageClient
 {
-    Task TestConnectionAsync(NextcloudConnectionSettings settings, CancellationToken cancellationToken = default);
+    Task<NextcloudConnectionInfo> TestConnectionAsync(
+        NextcloudConnectionSettings settings,
+        CancellationToken cancellationToken = default);
     Task<UploadResult> UploadAsync(
         ScreenshotUpload upload,
         NextcloudConnectionSettings settings,

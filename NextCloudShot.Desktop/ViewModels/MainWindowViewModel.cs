@@ -86,7 +86,11 @@ public sealed class MainWindowViewModel : ObservableObject
         try
         {
             Status = "Testing connection...";
-            await _storage.TestConnectionAsync(CreateConnectionSettings());
+            NextcloudConnectionInfo connection = await _storage.TestConnectionAsync(CreateConnectionSettings());
+            if (NextcloudDefaults.IsDefaultUploadFolder(UploadFolder))
+            {
+                UploadFolder = NextcloudDefaults.GetUploadFolder(connection.Language);
+            }
             await SaveSettingsAsync(updateStatus: false);
             Status = "Connection accepted by Nextcloud.";
         }

@@ -8,12 +8,17 @@ public sealed class ScreenshotUploadWorkflow(
     INextCloudShotStorageClient storageClient,
     IClipboardService clipboard)
 {
+    public byte[] RenderPng(ScreenshotDocument document) => renderer.RenderPng(document);
+
+    public Task CopyImageAsync(ScreenshotDocument document) =>
+        clipboard.SetImagePngAsync(RenderPng(document));
+
     public async Task<UploadResult> UploadAndCopyLinkAsync(
         ScreenshotDocument document,
         NextcloudConnectionSettings settings,
         CancellationToken cancellationToken = default)
     {
-        byte[] rendered = renderer.RenderPng(document);
+        byte[] rendered = RenderPng(document);
         string filename = $"Screenshot_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png";
         ScreenshotUpload upload = new(filename, rendered, DateTimeOffset.UtcNow);
 

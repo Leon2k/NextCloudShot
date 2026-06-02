@@ -13,6 +13,11 @@ namespace NextCloudShot.Desktop.Controls;
 
 public sealed class AnnotationCanvasControl : Control
 {
+    public static readonly StyledProperty<double> ZoomProperty =
+        AvaloniaProperty.Register<AnnotationCanvasControl, double>(nameof(Zoom), 1);
+
+    static AnnotationCanvasControl() => AffectsMeasure<AnnotationCanvasControl>(ZoomProperty);
+
     private ScreenshotEditorViewModel? _editor;
     private Bitmap? _bitmap;
     private Point? _gestureStart;
@@ -27,11 +32,17 @@ public sealed class AnnotationCanvasControl : Control
         PointerReleased += OnPointerReleased;
     }
 
+    public double Zoom
+    {
+        get => GetValue(ZoomProperty);
+        set => SetValue(ZoomProperty, value);
+    }
+
     protected override Size MeasureOverride(Size availableSize)
     {
         return _editor is null
             ? new Size(640, 360)
-            : new Size(_editor.Document.Source.PixelSize.Width, _editor.Document.Source.PixelSize.Height);
+            : new Size(_editor.Document.Source.PixelSize.Width * Zoom, _editor.Document.Source.PixelSize.Height * Zoom);
     }
 
     public override void Render(DrawingContext context)
@@ -41,6 +52,7 @@ public sealed class AnnotationCanvasControl : Control
 
         double width = _editor.Document.Source.PixelSize.Width;
         double height = _editor.Document.Source.PixelSize.Height;
+        using IDisposable transform = context.PushTransform(Matrix.CreateScale(Zoom, Zoom));
         context.DrawImage(_bitmap, new Rect(0, 0, width, height));
 
         foreach (Annotation annotation in _editor.Document.Annotations)
@@ -82,7 +94,7 @@ public sealed class AnnotationCanvasControl : Control
     private void OnPointerPressed(object? sender, PointerPressedEventArgs args)
     {
         if (_editor is null || !args.GetCurrentPoint(this).Properties.IsLeftButtonPressed) return;
-        Point point = args.GetPosition(this);
+        Point point = ToDocumentPoint(args.GetPosition(this));
         if (_editor.Tool == AnnotationTool.Text)
         {
             _editor.CommitText(ToCore(point));
@@ -100,7 +112,7 @@ public sealed class AnnotationCanvasControl : Control
     private void OnPointerMoved(object? sender, PointerEventArgs args)
     {
         if (_editor is null || _gestureStart is null || args.Pointer.Captured != this) return;
-        _gestureCurrent = args.GetPosition(this);
+        _gestureCurrent = ToDocumentPoint(args.GetPosition(this));
         if (_editor.Tool == AnnotationTool.Pen) _penPoints.Add(ToCore(_gestureCurrent));
         InvalidateVisual();
     }
@@ -108,7 +120,7 @@ public sealed class AnnotationCanvasControl : Control
     private void OnPointerReleased(object? sender, PointerReleasedEventArgs args)
     {
         if (_editor is null || _gestureStart is not Point start) return;
-        _gestureCurrent = args.GetPosition(this);
+        _gestureCurrent = ToDocumentPoint(args.GetPosition(this));
         args.Pointer.Capture(null);
         CoreRect bounds = NewRect(start, _gestureCurrent).Normalize();
         switch (_editor.Tool)
@@ -185,6 +197,7 @@ public sealed class AnnotationCanvasControl : Control
     }
 
     private static Pen Pen(string color, double thickness) => new(Brush.Parse(color), thickness);
+    private Point ToDocumentPoint(Point point) => new(point.X / Zoom, point.Y / Zoom);
     private static CorePoint ToCore(Point point) => new(point.X, point.Y);
     private static CoreRect NewRect(Point a, Point b) => new(a.X, a.Y, b.X - a.X, b.Y - a.Y);
     private static Rect ToRect(CoreRect rect) => new(rect.X, rect.Y, rect.Width, rect.Height);

@@ -6,18 +6,13 @@
 .vs/
 .idea/
 
-# Node / Nextcloud app output
+# Node output
 **/node_modules/
-NextCloudShot.NextcloudApp/js/*.js.map
-NextCloudShot.NextcloudApp/css/*.css
-!NextCloudShot.NextcloudApp/css/nextcloudshot.scss
 
 # Local environment
 .env
 .env.*
 !.env.example
-tools/dev-nextcloud/nextcloud/
-tools/dev-nextcloud/db/
 
 # Packaging
 artifacts/

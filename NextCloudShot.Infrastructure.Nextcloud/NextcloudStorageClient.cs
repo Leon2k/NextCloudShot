@@ -36,8 +36,8 @@ public sealed class NextcloudStorageClient(HttpClient httpClient) : INextCloudSh
         string fileUrl = BuildDavFileUrl(settings, remotePath);
 
         using HttpRequestMessage put = CreateRequest(HttpMethod.Put, fileUrl, settings);
-        put.Content = new ByteArrayContent(upload.PngBytes);
-        put.Content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+        put.Content = new ByteArrayContent(upload.Bytes);
+        put.Content.Headers.ContentType = new MediaTypeHeaderValue(upload.ContentType);
         using HttpResponseMessage response = await httpClient.SendAsync(put, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {

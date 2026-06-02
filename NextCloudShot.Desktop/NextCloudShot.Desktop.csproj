@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <ApplicationIcon>Assets\app-icon.ico</ApplicationIcon>
     <Description>Cross-platform NextCloudShot desktop UI. Windows native adapters are the first implemented platform.</Description>
   </PropertyGroup>
   <ItemGroup>

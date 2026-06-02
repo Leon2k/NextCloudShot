@@ -4,5 +4,5 @@ namespace NextCloudShot.Core.Contracts;
 
 public interface IAnnotationRenderer
 {
-    byte[] RenderPng(ScreenshotDocument document);
+    byte[] Render(ScreenshotDocument document, ScreenshotFileFormat format);
 }

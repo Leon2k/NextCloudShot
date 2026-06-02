@@ -7,10 +7,14 @@ namespace NextCloudShot.Desktop.Views;
 
 public sealed partial class ScreenshotEditorWindow : Window
 {
+    private readonly ScrollViewer _scrollViewer;
+
     public ScreenshotEditorWindow()
     {
         AvaloniaXamlLoader.Load(this);
+        _scrollViewer = this.FindControl<ScrollViewer>("EditorScrollViewer")!;
         KeyDown += OnKeyDown;
+        Opened += (_, _) => FitScreenshot();
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs args)
@@ -29,6 +33,14 @@ public sealed partial class ScreenshotEditorWindow : Window
         {
             editor.RedoCommand.Execute(null);
             args.Handled = true;
+        }
+    }
+
+    private void FitScreenshot()
+    {
+        if (DataContext is ScreenshotEditorViewModel editor)
+        {
+            editor.FitToViewport(_scrollViewer.Bounds.Width, _scrollViewer.Bounds.Height);
         }
     }
 }

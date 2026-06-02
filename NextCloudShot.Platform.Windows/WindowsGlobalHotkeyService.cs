@@ -8,8 +8,7 @@ namespace NextCloudShot.Platform.Windows;
 
 public sealed class WindowsGlobalHotkeyService : IGlobalHotkeyService
 {
-    private const int RegionHotkeyId = 6101;
-    private const int ActiveWindowHotkeyId = 6102;
+    private const int FirstHotkeyId = 6101;
     private static readonly ConcurrentDictionary<nint, WindowsGlobalHotkeyService> Instances = new();
 
     private readonly ManualResetEventSlim _ready = new(false);
@@ -17,12 +16,14 @@ public sealed class WindowsGlobalHotkeyService : IGlobalHotkeyService
     private Thread? _thread;
     private nint _window;
     private Exception? _startupError;
+    private GlobalHotkeySettings _settings = GlobalHotkeySettings.Default;
+    private readonly Dictionary<int, CaptureAction> _actions = [];
 
     public WindowsGlobalHotkeyService() => _windowProcedure = WindowProc;
 
     public event EventHandler<HotkeyPressedEventArgs>? HotkeyPressed;
 
-    public void Start()
+    public void Start(GlobalHotkeySettings settings)
     {
         if (!OperatingSystem.IsWindows())
         {
@@ -33,6 +34,9 @@ public sealed class WindowsGlobalHotkeyService : IGlobalHotkeyService
             return;
         }
 
+        _ready.Reset();
+        _startupError = null;
+        _settings = settings;
         _thread = new Thread(MessageLoop) { IsBackground = true, Name = "NextCloudShot.Hotkeys" };
         _thread.SetApartmentState(ApartmentState.STA);
         _thread.Start();
@@ -61,14 +65,16 @@ public sealed class WindowsGlobalHotkeyService : IGlobalHotkeyService
 
     private void MessageLoop()
     {
+        string? className = null;
+        nint instance = Win32.GetModuleHandleW(null);
         try
         {
-            string className = $"NextCloudShotHotkeyWindow_{Environment.ProcessId}";
+            className = $"NextCloudShotHotkeyWindow_{Environment.ProcessId}";
             Win32.WindowClass wc = new()
             {
                 ClassName = className,
                 WindowProcedure = _windowProcedure,
-                Instance = Win32.GetModuleHandleW(null)
+                Instance = instance
             };
             if (Win32.RegisterClassW(ref wc) == 0)
             {
@@ -83,8 +89,7 @@ public sealed class WindowsGlobalHotkeyService : IGlobalHotkeyService
             }
 
             Instances[_window] = this;
-            Register(RegionHotkeyId, 0, Win32.VK_SNAPSHOT);
-            Register(ActiveWindowHotkeyId, Win32.MOD_ALT, Win32.VK_SNAPSHOT);
+            RegisterConfiguredHotkeys();
             _ready.Set();
 
             while (Win32.GetMessageW(out Win32.Message message, nint.Zero, 0, 0) > 0)
@@ -102,29 +107,74 @@ public sealed class WindowsGlobalHotkeyService : IGlobalHotkeyService
         {
             if (_window != nint.Zero)
             {
-                Win32.UnregisterHotKey(_window, RegionHotkeyId);
-                Win32.UnregisterHotKey(_window, ActiveWindowHotkeyId);
+                foreach (int id in _actions.Keys) Win32.UnregisterHotKey(_window, id);
+                _actions.Clear();
                 Instances.TryRemove(_window, out _);
                 Win32.DestroyWindow(_window);
                 _window = nint.Zero;
             }
+            if (className is not null)
+            {
+                Win32.UnregisterClassW(className, instance);
+            }
         }
     }
 
-    private void Register(int id, uint modifier, uint key)
+    private void RegisterConfiguredHotkeys()
     {
-        if (!Win32.RegisterHotKey(_window, id, modifier, key))
+        if (!_settings.Enabled) return;
+
+        int id = FirstHotkeyId;
+        RegisterExpression(ref id, _settings.Region, CaptureAction.Region);
+        RegisterExpression(ref id, _settings.RegionAndShare, CaptureAction.RegionAndShare);
+        RegisterExpression(ref id, _settings.FullScreen, CaptureAction.FullScreen);
+        RegisterExpression(ref id, _settings.ActiveWindow, CaptureAction.ActiveWindow);
+        if (_actions.Count == 0)
         {
-            throw new Win32Exception(Marshal.GetLastWin32Error(), $"The hotkey with id {id} is already in use.");
+            throw new InvalidOperationException("Не удалось зарегистрировать ни одного сочетания клавиш.");
         }
+    }
+
+    private void RegisterExpression(ref int id, string expression, CaptureAction action)
+    {
+        foreach (string alternative in expression.Split(["или", "or"], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            (uint modifiers, uint key) = ParseGesture(alternative);
+            if (Register(id, modifiers, key))
+            {
+                _actions[id++] = action;
+            }
+        }
+    }
+
+    private static (uint Modifiers, uint Key) ParseGesture(string expression)
+    {
+        uint modifiers = 0;
+        uint key = 0;
+        foreach (string token in expression.Split('+', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token.Equals("Ctrl", StringComparison.OrdinalIgnoreCase)) modifiers |= Win32.MOD_CONTROL;
+            else if (token.Equals("Shift", StringComparison.OrdinalIgnoreCase)) modifiers |= Win32.MOD_SHIFT;
+            else if (token.Equals("Alt", StringComparison.OrdinalIgnoreCase)) modifiers |= Win32.MOD_ALT;
+            else if (token.Equals("PrtScr", StringComparison.OrdinalIgnoreCase) || token.Equals("PrintScreen", StringComparison.OrdinalIgnoreCase)) key = Win32.VK_SNAPSHOT;
+            else if (token.Length == 1 && char.IsLetterOrDigit(token[0])) key = char.ToUpperInvariant(token[0]);
+            else throw new InvalidOperationException($"Неизвестная клавиша: {token}.");
+        }
+
+        return key == 0 ? throw new InvalidOperationException($"Не указана клавиша: {expression}.") : (modifiers, key);
+    }
+
+    private bool Register(int id, uint modifier, uint key)
+    {
+        return Win32.RegisterHotKey(_window, id, modifier, key);
     }
 
     private static nint WindowProc(nint hwnd, uint msg, nuint wParam, nint lParam)
     {
-        if (msg == Win32.WM_HOTKEY && Instances.TryGetValue(hwnd, out WindowsGlobalHotkeyService? service))
+        if (msg == Win32.WM_HOTKEY && Instances.TryGetValue(hwnd, out WindowsGlobalHotkeyService? service) &&
+            service._actions.TryGetValue((int)wParam, out CaptureAction action))
         {
-            CaptureMode mode = (int)wParam == ActiveWindowHotkeyId ? CaptureMode.ActiveWindow : CaptureMode.Region;
-            service.HotkeyPressed?.Invoke(service, new HotkeyPressedEventArgs(mode));
+            service.HotkeyPressed?.Invoke(service, new HotkeyPressedEventArgs(action));
             return nint.Zero;
         }
 

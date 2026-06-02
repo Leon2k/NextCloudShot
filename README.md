@@ -6,7 +6,7 @@ NextCloudShot is a self-hosted screenshot workflow for Nextcloud: a desktop capt
 
 ## Target workflow
 
-`PrintScreen` -> select a region -> crop/annotate/censor -> upload to Nextcloud -> public link copied to clipboard.
+`PrintScreen` -> select a region -> crop/annotate/censor -> save directly to Nextcloud or create a public link.
 
 `Alt + PrintScreen` -> capture the foreground window -> edit -> upload -> copy link.
 
@@ -24,13 +24,15 @@ NextCloudShot is a self-hosted screenshot workflow for Nextcloud: a desktop capt
 ### Desktop client
 
 - Avalonia desktop application shell, deliberately separated from OS-specific services.
-- Native Windows hotkey service for `PrintScreen` and `Alt + PrintScreen`.
+- Tray-mode startup with a settings window that can be opened on demand.
+- Configurable Windows hotkeys for region, immediate share, full-screen and foreground-window captures.
 - Windows screen capture: virtual desktop and foreground window.
 - Selection overlay for region capture.
-- Editor window with crop, rectangle, arrow, freehand pen, text and pixelation tools.
-- Skia-based renderer that produces the annotated PNG intended for upload.
+- Editor window with two-phase crop, editable shapes, three arrow styles, freehand marker, text and pixelation tools.
+- Skia-based renderer that produces annotated PNG or JPEG files intended for upload.
 - Nextcloud client for WebDAV `PUT` upload and OCS public link creation.
-- Configuration model and clipboard integration points.
+- Russian settings UI with localized default upload folder selection from the Nextcloud profile language.
+- DPAPI-protected app-password storage and clipboard integration points.
 
 ## Important boundaries
 

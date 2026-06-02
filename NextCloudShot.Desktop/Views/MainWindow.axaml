@@ -1,36 +1,60 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="NextCloudShot.Desktop.Views.MainWindow"
-        Title="NextCloudShot" Width="680" Height="530" MinWidth="560" MinHeight="470">
-  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="28">
-    <StackPanel Spacing="5">
-      <TextBlock Classes="heading" Text="NextCloudShot" />
-      <TextBlock Foreground="#B8C1CC" Text="Screenshots to your Nextcloud with instant public links" />
-    </StackPanel>
-
-    <Border Grid.Row="1" Margin="0,26,0,22" Padding="18" CornerRadius="8" Background="#161C23">
-      <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="145,*" RowSpacing="12" ColumnSpacing="12">
-        <TextBlock VerticalAlignment="Center" Text="Server URL" />
-        <TextBox Grid.Column="1" Text="{Binding ServerUrl}" Watermark="https://cloud.example.ru/" />
-        <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="Username" />
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Username}" />
-        <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="App password" />
-        <TextBox Grid.Row="2" Grid.Column="1" PasswordChar="*" Text="{Binding AppPassword}" />
-        <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="Upload folder" />
-        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding UploadFolder}" />
-        <CheckBox Grid.Row="4" Grid.Column="1" IsChecked="{Binding CreatePublicLink}" Content="Create public link after upload" />
-      </Grid>
-    </Border>
-
-    <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
-      <Button Classes="primary" Command="{Binding CaptureRegionCommand}" Content="Capture region  (PrintScreen)" />
-      <Button Command="{Binding CaptureWindowCommand}" Content="Capture window  (Alt + PrintScreen)" />
-      <Button Command="{Binding SaveSettingsCommand}" Content="Save settings" />
-      <Button Command="{Binding TestConnectionCommand}" Content="Test cloud" />
-    </StackPanel>
-
-    <Border Grid.Row="3" Margin="0,22,0,0" Background="#10151B" CornerRadius="6" Padding="12">
+        Title="Настройки NextCloudShot" Icon="/Assets/app-icon.ico"
+        Width="650" Height="560" MinWidth="620" MinHeight="520">
+  <Grid RowDefinitions="*,Auto,Auto" Margin="14">
+    <TabControl>
+      <TabItem Header="Подключение">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="175,*"
+              RowSpacing="12" ColumnSpacing="12" Margin="10,18">
+          <TextBlock VerticalAlignment="Center" Text="Адрес сервера Nextcloud:" />
+          <TextBox Grid.Column="1" Text="{Binding ServerUrl}" Watermark="https://cloud.example.ru/" />
+          <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="Логин:" />
+          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Username}" />
+          <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="Пароль приложения:" />
+          <TextBox Grid.Row="2" Grid.Column="1" PasswordChar="*" Text="{Binding AppPassword}" />
+          <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="Папка скриншотов:" />
+          <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding UploadFolder}" />
+          <CheckBox Grid.Row="4" Grid.Column="1" IsChecked="{Binding CreatePublicLink}"
+                    Content="Создавать публичную ссылку после загрузки" />
+          <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+            <Button Command="{Binding TestConnectionCommand}" Content="Проверить подключение" />
+            <Button Command="{Binding SaveSettingsCommand}" Content="Сохранить настройки" />
+          </StackPanel>
+        </Grid>
+      </TabItem>
+      <TabItem Header="Скриншоты">
+        <Grid RowDefinitions="Auto,Auto,*" Margin="10,18">
+          <CheckBox IsChecked="{Binding HotkeysEnabled}" Content="Сочетания клавиш" />
+          <Border Grid.Row="1" Margin="0,12,0,16" Padding="14" BorderBrush="#59616A" BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="220,*" RowSpacing="10" ColumnSpacing="12">
+              <TextBlock VerticalAlignment="Center" Text="Скриншот области:" />
+              <TextBox Grid.Column="1" Text="{Binding RegionHotkey}" />
+              <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="Сделать скриншот и получить ссылку:" TextWrapping="Wrap" />
+              <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RegionAndShareHotkey}" />
+              <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="Скриншот всего экрана:" />
+              <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding FullScreenHotkey}" />
+              <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="Скриншот окна:" />
+              <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ActiveWindowHotkey}" />
+            </Grid>
+          </Border>
+          <Grid Grid.Row="2" ColumnDefinitions="Auto,240,Auto,110" ColumnSpacing="8" VerticalAlignment="Bottom">
+            <TextBlock VerticalAlignment="Center" Text="Имя файла:" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding FileNamePatterns}" SelectedItem="{Binding FileNamePattern}" />
+            <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="Формат:" />
+            <ComboBox Grid.Column="3" ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat}" />
+          </Grid>
+        </Grid>
+      </TabItem>
+    </TabControl>
+    <Border Grid.Row="1" Margin="0,14,0,0" Background="#10151B" CornerRadius="6" Padding="10">
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="#BBC6D2" />
     </Border>
+    <StackPanel Grid.Row="2" Margin="0,14,0,0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Command="{Binding CaptureRegionCommand}" Content="Снимок области" />
+      <Button Command="{Binding CaptureWindowCommand}" Content="Снимок окна" />
+      <Button Classes="primary" Command="{Binding SaveSettingsCommand}" Content="Сохранить" />
+    </StackPanel>
   </Grid>
 </Window>

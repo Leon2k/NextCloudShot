@@ -25,9 +25,23 @@ public static class NextcloudDefaults
 
 public sealed record NextcloudConnectionInfo(string? Language);
 
+public enum ScreenshotFileFormat
+{
+    Png,
+    Jpeg
+}
+
+public sealed record ScreenshotOutputSettings(
+    string FileNamePattern,
+    ScreenshotFileFormat Format)
+{
+    public static ScreenshotOutputSettings Default { get; } = new("Дата + время", ScreenshotFileFormat.Png);
+}
+
 public sealed record ScreenshotUpload(
     string FileName,
-    byte[] PngBytes,
+    byte[] Bytes,
+    string ContentType,
     DateTimeOffset CapturedAtUtc);
 
 public sealed record UploadResult(

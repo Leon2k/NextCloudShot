@@ -2,11 +2,16 @@ using System.Text.Json;
 
 namespace NextCloudShot.Desktop.Services;
 
+using NextCloudShot.Core.Models;
+
 public sealed record DesktopSettings(
     string ServerUrl,
     string Username,
     string UploadFolder,
-    bool CreatePublicLink);
+    bool CreatePublicLink,
+    GlobalHotkeySettings? Hotkeys = null,
+    string? FileNamePattern = null,
+    ScreenshotFileFormat Format = ScreenshotFileFormat.Png);
 
 public interface IDesktopSettingsStore
 {

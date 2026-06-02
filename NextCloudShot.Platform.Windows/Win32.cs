@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace NextCloudShot.Platform.Windows;
 
@@ -8,6 +9,8 @@ internal static class Win32
     internal const int WM_CLOSE = 0x0010;
     internal const int WM_DESTROY = 0x0002;
     internal const int MOD_ALT = 0x0001;
+    internal const int MOD_CONTROL = 0x0002;
+    internal const int MOD_SHIFT = 0x0004;
     internal const int VK_SNAPSHOT = 0x2C;
     internal const int SM_XVIRTUALSCREEN = 76;
     internal const int SM_YVIRTUALSCREEN = 77;
@@ -60,6 +63,9 @@ internal static class Win32
     internal static extern ushort RegisterClassW(ref WindowClass windowClass);
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern bool UnregisterClassW(string className, nint instance);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     internal static extern nint CreateWindowExW(uint exStyle, string className, string windowName, uint style,
         int x, int y, int width, int height, nint parent, nint menu, nint instance, nint param);
 
@@ -95,4 +101,10 @@ internal static class Win32
 
     [DllImport("user32.dll")]
     internal static extern bool GetWindowRect(nint hwnd, out Rect rect);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    internal static extern int GetWindowTextLengthW(nint hwnd);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    internal static extern int GetWindowTextW(nint hwnd, StringBuilder text, int maxCount);
 }

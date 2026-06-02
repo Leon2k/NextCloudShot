@@ -6,7 +6,7 @@ namespace NextCloudShot.Desktop.Services;
 
 public sealed class SkiaAnnotationRenderer : IAnnotationRenderer
 {
-    public byte[] RenderPng(ScreenshotDocument document)
+    public byte[] Render(ScreenshotDocument document, ScreenshotFileFormat format)
     {
         using SKBitmap source = SKBitmap.Decode(document.Source.PngBytes)
             ?? throw new InvalidOperationException("Unable to decode source screenshot PNG.");
@@ -27,7 +27,9 @@ public sealed class SkiaAnnotationRenderer : IAnnotationRenderer
         }
 
         using SKImage image = SKImage.FromBitmap(output);
-        using SKData encoded = image.Encode(SKEncodedImageFormat.Png, 100);
+        using SKData encoded = image.Encode(
+            format == ScreenshotFileFormat.Jpeg ? SKEncodedImageFormat.Jpeg : SKEncodedImageFormat.Png,
+            format == ScreenshotFileFormat.Jpeg ? 92 : 100);
         return encoded.ToArray();
     }
 
@@ -37,11 +39,11 @@ public sealed class SkiaAnnotationRenderer : IAnnotationRenderer
         {
             case RectangleAnnotation rectangle:
                 using (SKPaint paint = StrokePaint(rectangle.Color, rectangle.Thickness))
-                    canvas.DrawRect(Offset(rectangle.Bounds, offsetX, offsetY), paint);
+                    DrawShape(canvas, Offset(rectangle.Bounds, offsetX, offsetY), paint, rectangle.Style);
                 break;
             case ArrowAnnotation arrow:
                 using (SKPaint paint = StrokePaint(arrow.Color, arrow.Thickness))
-                    DrawArrow(canvas, Offset(arrow.From, offsetX, offsetY), Offset(arrow.To, offsetX, offsetY), paint);
+                    DrawArrow(canvas, Offset(arrow.From, offsetX, offsetY), Offset(arrow.To, offsetX, offsetY), arrow.Control is null ? null : Offset(arrow.Control.Value, offsetX, offsetY), paint, arrow.Style);
                 break;
             case PenAnnotation pen:
                 using (SKPaint paint = StrokePaint(pen.Color, pen.Thickness))
@@ -96,20 +98,86 @@ public sealed class SkiaAnnotationRenderer : IAnnotationRenderer
         StrokeJoin = SKStrokeJoin.Round
     };
 
-    private static void DrawArrow(SKCanvas canvas, SKPoint from, SKPoint to, SKPaint paint)
+    private static void DrawShape(SKCanvas canvas, SKRect bounds, SKPaint paint, ShapeStyle style)
     {
+        switch (style)
+        {
+            case ShapeStyle.Ellipse:
+                canvas.DrawOval(bounds, paint);
+                break;
+            case ShapeStyle.Cloud:
+                paint.PathEffect = SKPathEffect.CreateDash([1, Math.Max(3, paint.StrokeWidth)], 0);
+                canvas.DrawRect(bounds, paint);
+                break;
+            case ShapeStyle.Line:
+                canvas.DrawLine(bounds.Left, bounds.Top, bounds.Right, bounds.Bottom, paint);
+                break;
+            default:
+                canvas.DrawRect(bounds, paint);
+                break;
+        }
+    }
+
+    private static void DrawArrow(SKCanvas canvas, SKPoint from, SKPoint to, SKPoint? control, SKPaint paint, ArrowStyle style)
+    {
+        if (style == ArrowStyle.Triangle)
+        {
+            DrawTriangleArrow(canvas, from, to, paint.Color, paint.StrokeWidth);
+            return;
+        }
+
+        if (style == ArrowStyle.Dotted)
+        {
+            paint.PathEffect = SKPathEffect.CreateDash([1, Math.Max(7, paint.StrokeWidth * 2)], 0);
+            paint.StrokeWidth = Math.Max(4, paint.StrokeWidth);
+            SKPoint curveControl = control ?? Midpoint(from, to);
+            using SKPath curve = new();
+            curve.MoveTo(from);
+            curve.QuadTo(curveControl, to);
+            canvas.DrawPath(curve, paint);
+            DrawArrowHead(canvas, curveControl, to, paint);
+            return;
+        }
+
         canvas.DrawLine(from, to, paint);
+        DrawArrowHead(canvas, from, to, paint);
+    }
+
+    private static void DrawArrowHead(SKCanvas canvas, SKPoint from, SKPoint to, SKPaint paint)
+    {
         double angle = Math.Atan2(to.Y - from.Y, to.X - from.X);
-        const float length = 18;
+        float length = Math.Max(22, paint.StrokeWidth * 4.5f);
         SKPoint left = new(to.X - length * (float)Math.Cos(angle - Math.PI / 6), to.Y - length * (float)Math.Sin(angle - Math.PI / 6));
         SKPoint right = new(to.X - length * (float)Math.Cos(angle + Math.PI / 6), to.Y - length * (float)Math.Sin(angle + Math.PI / 6));
         canvas.DrawLine(to, left, paint);
         canvas.DrawLine(to, right, paint);
     }
 
+    private static void DrawTriangleArrow(SKCanvas canvas, SKPoint from, SKPoint to, SKColor color, float thickness)
+    {
+        double angle = Math.Atan2(to.Y - from.Y, to.X - from.X);
+        float headLength = Math.Max(22, thickness * 4);
+        float headWidth = Math.Max(16, thickness * 3);
+        float shaftWidth = Math.Max(4, thickness);
+        SKPoint headBase = new(to.X - headLength * (float)Math.Cos(angle), to.Y - headLength * (float)Math.Sin(angle));
+        SKPoint normal = new(-(float)Math.Sin(angle), (float)Math.Cos(angle));
+        using SKPath path = new();
+        path.MoveTo(from.X + normal.X * shaftWidth / 2, from.Y + normal.Y * shaftWidth / 2);
+        path.LineTo(headBase.X + normal.X * shaftWidth / 2, headBase.Y + normal.Y * shaftWidth / 2);
+        path.LineTo(headBase.X + normal.X * headWidth / 2, headBase.Y + normal.Y * headWidth / 2);
+        path.LineTo(to);
+        path.LineTo(headBase.X - normal.X * headWidth / 2, headBase.Y - normal.Y * headWidth / 2);
+        path.LineTo(headBase.X - normal.X * shaftWidth / 2, headBase.Y - normal.Y * shaftWidth / 2);
+        path.LineTo(from.X - normal.X * shaftWidth / 2, from.Y - normal.Y * shaftWidth / 2);
+        path.Close();
+        using SKPaint fill = new() { Color = color, Style = SKPaintStyle.Fill, IsAntialias = true };
+        canvas.DrawPath(path, fill);
+    }
+
     private static SKRect Offset(PixelRect rect, int x, int y) => new((float)(rect.X - x), (float)(rect.Y - y), (float)(rect.Right - x), (float)(rect.Bottom - y));
     private static SKPoint Offset(PixelPoint point, int x, int y) => new((float)(point.X - x), (float)(point.Y - y));
     private static SKColor Parse(string color) => SKColor.Parse(color);
+    private static SKPoint Midpoint(SKPoint a, SKPoint b) => new((a.X + b.X) / 2, (a.Y + b.Y) / 2);
 
     private static SKRectI ToClampedRect(PixelRect rect, int width, int height) => new(
         Math.Clamp((int)Math.Floor(rect.X), 0, width),

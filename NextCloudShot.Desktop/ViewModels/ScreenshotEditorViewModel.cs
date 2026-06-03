@@ -18,8 +18,9 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
     private PixelRect? _pendingCrop;
     private string _textValue = "Text";
     private string _toolColor = "#E45A4F";
-    private double _toolThickness = 4;
+    private double _toolThickness = 2;
     private double _zoom = 0.8;
+    private bool _hasUnsavedChanges = true;
     private string _status = "Готово. Выберите инструмент и отредактируйте снимок.";
 
     public ScreenshotEditorViewModel(
@@ -50,6 +51,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
     }
 
     public event EventHandler? Changed;
+    public event EventHandler? RequestClose;
 
     public ScreenshotDocument Document { get; }
     public AnnotationTool Tool
@@ -117,7 +119,16 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
         }
     }
     public string ToolColor { get => _toolColor; set => SetProperty(ref _toolColor, value); }
-    public double ToolThickness { get => _toolThickness; set => SetProperty(ref _toolThickness, value); }
+    public double ToolThickness
+    {
+        get => _toolThickness;
+        set
+        {
+            if (!SetProperty(ref _toolThickness, value)) return;
+            RaiseThicknessSelectionChanged();
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    }
     public double Zoom
     {
         get => _zoom;
@@ -129,6 +140,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
         }
     }
     public string ZoomPercent => $"{Zoom:P0}";
+    public bool HasUnsavedChanges { get => _hasUnsavedChanges; private set => SetProperty(ref _hasUnsavedChanges, value); }
     public string Status { get => _status; set => SetProperty(ref _status, value); }
     public bool IsArrowSelected => Tool == AnnotationTool.Arrow;
     public bool IsRectangleSelected => Tool == AnnotationTool.Rectangle;
@@ -144,6 +156,9 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
     public bool IsEllipseShapeSelected => ShapeStyle == ShapeStyle.Ellipse;
     public bool IsCloudShapeSelected => ShapeStyle == ShapeStyle.Cloud;
     public bool IsLineShapeSelected => ShapeStyle == ShapeStyle.Line;
+    public bool IsThinThicknessSelected => Math.Abs(ToolThickness - 2) < 0.01;
+    public bool IsMediumThicknessSelected => Math.Abs(ToolThickness - 4) < 0.01;
+    public bool IsThickThicknessSelected => Math.Abs(ToolThickness - 7) < 0.01;
     public ICommand SelectToolCommand { get; }
     public ICommand SelectColorCommand { get; }
     public ICommand SelectThicknessCommand { get; }
@@ -171,6 +186,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
         {
             RememberForUndo();
             Document.Crop = rect.Normalize();
+            MarkDirty();
             Changed?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -193,6 +209,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
         RememberForUndo();
         Document.Add(annotation);
         SelectedAnnotationId = annotation.Id;
+        MarkDirty();
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -204,6 +221,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
     public void UpdateAnnotation(Annotation annotation)
     {
         Document.Replace(annotation);
+        MarkDirty();
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -249,21 +267,44 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
 
     private async Task CopyAsync()
     {
-        await _workflow.CopyImageAsync(Document);
-        Status = "Изображение скопировано в буфер обмена.";
-    }
-
-    private async Task SaveAsync()
-    {
         try
         {
-            Status = "Сохранение в Nextcloud...";
-            UploadResult result = await _workflow.SaveToNextcloudAsync(Document, _settingsFactory(), _outputSettingsFactory());
-            Status = $"Сохранено в Nextcloud: {result.RemotePath}";
+            Status = "Копирование и сохранение в папку Nextcloud...";
+            LocalScreenshotResult result = await _workflow.CopyImageAsync(Document, _settingsFactory(), _outputSettingsFactory());
+            HasUnsavedChanges = false;
+            Status = $"Скопировано и сохранено: {result.RemotePath}";
+            RequestClose?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception exception)
         {
             Status = exception.Message;
+        }
+    }
+
+    private async Task SaveAsync() => await SaveCurrentAsync(showInFolder: true, closeAfterSave: true);
+
+    public async Task<bool> SaveForClosePromptAsync() =>
+        await SaveCurrentAsync(showInFolder: true, closeAfterSave: false);
+
+    private async Task<bool> SaveCurrentAsync(bool showInFolder, bool closeAfterSave)
+    {
+        try
+        {
+            Status = "Сохранение в Nextcloud...";
+            LocalScreenshotResult result = await _workflow.SaveToNextcloudAsync(Document, _settingsFactory(), _outputSettingsFactory(), showInFolder);
+            HasUnsavedChanges = false;
+            Status = $"Сохранено в Nextcloud: {result.RemotePath}";
+            if (closeAfterSave)
+            {
+                RequestClose?.Invoke(this, EventArgs.Empty);
+            }
+
+            return true;
+        }
+        catch (Exception exception)
+        {
+            Status = exception.Message;
+            return false;
         }
     }
 
@@ -273,6 +314,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
         {
             Status = "Загрузка в Nextcloud...";
             UploadResult result = await _workflow.UploadAndCopyLinkAsync(Document, _settingsFactory(), _outputSettingsFactory());
+            HasUnsavedChanges = false;
             Status = result.PublicUrl is null ? $"Загружено: {result.RemotePath}" : $"Ссылка скопирована: {result.PublicUrl}";
         }
         catch (Exception exception)
@@ -286,6 +328,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
         if (Document.Annotations.Count == 0) return;
         RememberForUndo();
         Document.ClearAnnotations();
+        MarkDirty();
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -316,6 +359,7 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
     {
         Document.Crop = state.Crop;
         Document.ReplaceAnnotations(state.Annotations);
+        MarkDirty();
         NotifyHistoryChanged();
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -336,6 +380,15 @@ public sealed class ScreenshotEditorViewModel : ObservableObject
         RaisePropertyChanged(nameof(IsCropSelected));
         RaisePropertyChanged(nameof(ShowsStrokeOptions));
     }
+
+    private void RaiseThicknessSelectionChanged()
+    {
+        RaisePropertyChanged(nameof(IsThinThicknessSelected));
+        RaisePropertyChanged(nameof(IsMediumThicknessSelected));
+        RaisePropertyChanged(nameof(IsThickThicknessSelected));
+    }
+
+    private void MarkDirty() => HasUnsavedChanges = true;
 
     private sealed record DocumentState(PixelRect Crop, IReadOnlyList<Annotation> Annotations);
 

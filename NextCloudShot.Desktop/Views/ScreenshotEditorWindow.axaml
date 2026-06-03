@@ -115,9 +115,12 @@
             <Button Classes="option" Command="{Binding CancelCropCommand}" Content="Отмена" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding ShowsStrokeOptions}">
-            <Button Classes="option" Command="{Binding SelectThicknessCommand}" CommandParameter="2" Content="Тонкая" />
-            <Button Classes="option" Command="{Binding SelectThicknessCommand}" CommandParameter="4" Content="Средняя" />
-            <Button Classes="option" Command="{Binding SelectThicknessCommand}" CommandParameter="7" Content="Толстая" />
+            <Button Classes="option" Classes.active="{Binding IsThinThicknessSelected}"
+                    Command="{Binding SelectThicknessCommand}" CommandParameter="2" Content="Тонкая" />
+            <Button Classes="option" Classes.active="{Binding IsMediumThicknessSelected}"
+                    Command="{Binding SelectThicknessCommand}" CommandParameter="4" Content="Средняя" />
+            <Button Classes="option" Classes.active="{Binding IsThickThicknessSelected}"
+                    Command="{Binding SelectThicknessCommand}" CommandParameter="7" Content="Толстая" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="7" IsVisible="{Binding IsTextSelected}">
             <TextBox Width="220" MinHeight="28" Text="{Binding TextValue}" Watermark="Текст для вставки" />

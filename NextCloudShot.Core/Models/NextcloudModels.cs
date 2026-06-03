@@ -48,3 +48,8 @@ public sealed record UploadResult(
     string RemotePath,
     Uri? PublicUrl,
     bool LinkCreated);
+
+public sealed record LocalScreenshotResult(
+    string LocalPath,
+    string RemotePath,
+    string FileName);

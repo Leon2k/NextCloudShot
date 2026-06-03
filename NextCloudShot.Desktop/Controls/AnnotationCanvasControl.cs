@@ -6,6 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Media.TextFormatting;
 using NextCloudShot.Core.Models;
 using NextCloudShot.Desktop.ViewModels;
+using SkiaSharp;
 using CorePoint = NextCloudShot.Core.Models.PixelPoint;
 using CoreRect = NextCloudShot.Core.Models.PixelRect;
 
@@ -20,6 +21,7 @@ public sealed class AnnotationCanvasControl : Control
 
     private ScreenshotEditorViewModel? _editor;
     private Bitmap? _bitmap;
+    private SKBitmap? _sourceBitmap;
     private Point? _gestureStart;
     private Point _gestureCurrent;
     private readonly List<CorePoint> _penPoints = [];
@@ -83,12 +85,15 @@ public sealed class AnnotationCanvasControl : Control
     {
         if (_editor is not null) _editor.Changed -= OnEditorChanged;
         _bitmap?.Dispose();
+        _sourceBitmap?.Dispose();
         _bitmap = null;
+        _sourceBitmap = null;
         _editor = editor;
         if (_editor is not null)
         {
             using MemoryStream stream = new(_editor.Document.Source.PngBytes);
             _bitmap = new Bitmap(stream);
+            _sourceBitmap = SKBitmap.Decode(_editor.Document.Source.PngBytes);
             _editor.Changed += OnEditorChanged;
         }
         InvalidateMeasure();
@@ -198,7 +203,7 @@ public sealed class AnnotationCanvasControl : Control
         }
     }
 
-    private static void DrawAnnotation(DrawingContext context, Annotation annotation)
+    private void DrawAnnotation(DrawingContext context, Annotation annotation)
     {
         switch (annotation)
         {
@@ -212,13 +217,40 @@ public sealed class AnnotationCanvasControl : Control
                 DrawPolyline(context, pen.Points, Pen(pen.Color, pen.Thickness));
                 break;
             case PixelateAnnotation pixelate:
-                context.DrawRectangle(new SolidColorBrush(Color.Parse("#667B8794")), Pen("#C7D2DF", 1), ToRect(pixelate.Bounds));
+                DrawPixelatedRegion(context, pixelate);
                 break;
             case TextAnnotation text:
                 TextLayout layout = new(text.Text, new Typeface("Inter"), text.FontSize, Brush.Parse(text.Color));
                 layout.Draw(context, new Point(text.Position.X, text.Position.Y));
                 break;
         }
+    }
+
+    private void DrawPixelatedRegion(DrawingContext context, PixelateAnnotation pixelate)
+    {
+        CoreRect bounds = pixelate.Bounds.Normalize();
+        if (_sourceBitmap is null || bounds.IsEmpty)
+        {
+            context.DrawRectangle(new SolidColorBrush(Color.Parse("#667B8794")), Pen("#C7D2DF", 1), ToRect(bounds));
+            return;
+        }
+
+        double block = Math.Max(8, pixelate.BlockSize);
+        for (double y = bounds.Y; y < bounds.Bottom; y += block)
+        {
+            double height = Math.Min(block, bounds.Bottom - y);
+            for (double x = bounds.X; x < bounds.Right; x += block)
+            {
+                double width = Math.Min(block, bounds.Right - x);
+                int sampleX = Math.Clamp((int)Math.Round(x + width / 2), 0, _sourceBitmap.Width - 1);
+                int sampleY = Math.Clamp((int)Math.Round(y + height / 2), 0, _sourceBitmap.Height - 1);
+                SKColor source = _sourceBitmap.GetPixel(sampleX, sampleY);
+                IBrush brush = new SolidColorBrush(Color.FromRgb(source.Red, source.Green, source.Blue));
+                context.DrawRectangle(brush, null, new Rect(x, y, width + 0.5, height + 0.5));
+            }
+        }
+
+        context.DrawRectangle(null, Pen("#C7D2DF", 1.4), ToRect(bounds));
     }
 
     private static void DrawPolyline(DrawingContext context, IReadOnlyList<CorePoint> points, Pen pen)
@@ -290,21 +322,22 @@ public sealed class AnnotationCanvasControl : Control
     private static void DrawTriangleArrow(DrawingContext context, CorePoint from, CorePoint to, IBrush? brush, double thickness)
     {
         double angle = Math.Atan2(to.Y - from.Y, to.X - from.X);
-        double headLength = Math.Max(22, thickness * 4);
-        double headWidth = Math.Max(16, thickness * 3);
-        double shaftWidth = Math.Max(4, thickness);
+        double headLength = Math.Max(24, thickness * 5);
+        double headWidth = Math.Max(22, thickness * 5);
+        double tailWidth = Math.Max(2, thickness * 0.75);
+        double shaftHeadWidth = Math.Max(10, thickness * 2.8);
         Point headBase = new(to.X - headLength * Math.Cos(angle), to.Y - headLength * Math.Sin(angle));
         Vector normal = new(-Math.Sin(angle), Math.Cos(angle));
         StreamGeometry geometry = new();
         using (StreamGeometryContext path = geometry.Open())
         {
-            path.BeginFigure(new Point(from.X + normal.X * shaftWidth / 2, from.Y + normal.Y * shaftWidth / 2), true);
-            path.LineTo(headBase + normal * (shaftWidth / 2));
+            path.BeginFigure(new Point(from.X + normal.X * tailWidth / 2, from.Y + normal.Y * tailWidth / 2), true);
+            path.LineTo(headBase + normal * (shaftHeadWidth / 2));
             path.LineTo(headBase + normal * (headWidth / 2));
             path.LineTo(new Point(to.X, to.Y));
             path.LineTo(headBase - normal * (headWidth / 2));
-            path.LineTo(headBase - normal * (shaftWidth / 2));
-            path.LineTo(new Point(from.X - normal.X * shaftWidth / 2, from.Y - normal.Y * shaftWidth / 2));
+            path.LineTo(headBase - normal * (shaftHeadWidth / 2));
+            path.LineTo(new Point(from.X - normal.X * tailWidth / 2, from.Y - normal.Y * tailWidth / 2));
             path.EndFigure(true);
         }
         context.DrawGeometry(brush, null, geometry);

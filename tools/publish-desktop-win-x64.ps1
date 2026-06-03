@@ -21,5 +21,8 @@ dotnet publish $project `
     --self-contained $selfContained `
     --output $publishDir `
     -p:PublishSingleFile=false
+if ($LASTEXITCODE -ne 0) {
+    throw "dotnet publish failed with exit code $LASTEXITCODE"
+}
 
 Write-Host "Published NextCloudShot Desktop to $publishDir"

@@ -156,19 +156,20 @@ public sealed class SkiaAnnotationRenderer : IAnnotationRenderer
     private static void DrawTriangleArrow(SKCanvas canvas, SKPoint from, SKPoint to, SKColor color, float thickness)
     {
         double angle = Math.Atan2(to.Y - from.Y, to.X - from.X);
-        float headLength = Math.Max(22, thickness * 4);
-        float headWidth = Math.Max(16, thickness * 3);
-        float shaftWidth = Math.Max(4, thickness);
+        float headLength = Math.Max(24, thickness * 5);
+        float headWidth = Math.Max(22, thickness * 5);
+        float tailWidth = Math.Max(2, thickness * 0.75f);
+        float shaftHeadWidth = Math.Max(10, thickness * 2.8f);
         SKPoint headBase = new(to.X - headLength * (float)Math.Cos(angle), to.Y - headLength * (float)Math.Sin(angle));
         SKPoint normal = new(-(float)Math.Sin(angle), (float)Math.Cos(angle));
         using SKPath path = new();
-        path.MoveTo(from.X + normal.X * shaftWidth / 2, from.Y + normal.Y * shaftWidth / 2);
-        path.LineTo(headBase.X + normal.X * shaftWidth / 2, headBase.Y + normal.Y * shaftWidth / 2);
+        path.MoveTo(from.X + normal.X * tailWidth / 2, from.Y + normal.Y * tailWidth / 2);
+        path.LineTo(headBase.X + normal.X * shaftHeadWidth / 2, headBase.Y + normal.Y * shaftHeadWidth / 2);
         path.LineTo(headBase.X + normal.X * headWidth / 2, headBase.Y + normal.Y * headWidth / 2);
         path.LineTo(to);
         path.LineTo(headBase.X - normal.X * headWidth / 2, headBase.Y - normal.Y * headWidth / 2);
-        path.LineTo(headBase.X - normal.X * shaftWidth / 2, headBase.Y - normal.Y * shaftWidth / 2);
-        path.LineTo(from.X - normal.X * shaftWidth / 2, from.Y - normal.Y * shaftWidth / 2);
+        path.LineTo(headBase.X - normal.X * shaftHeadWidth / 2, headBase.Y - normal.Y * shaftHeadWidth / 2);
+        path.LineTo(from.X - normal.X * tailWidth / 2, from.Y - normal.Y * tailWidth / 2);
         path.Close();
         using SKPaint fill = new() { Color = color, Style = SKPaintStyle.Fill, IsAntialias = true };
         canvas.DrawPath(path, fill);

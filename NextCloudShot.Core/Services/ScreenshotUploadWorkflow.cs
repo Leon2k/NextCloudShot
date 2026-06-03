@@ -6,19 +6,38 @@ namespace NextCloudShot.Core.Services;
 public sealed class ScreenshotUploadWorkflow(
     IAnnotationRenderer renderer,
     INextCloudShotStorageClient storageClient,
-    IClipboardService clipboard)
+    IClipboardService clipboard,
+    ILocalScreenshotStore localStore,
+    IScreenshotFilePresenter filePresenter)
 {
     public byte[] Render(ScreenshotDocument document, ScreenshotFileFormat format) => renderer.Render(document, format);
 
-    public Task CopyImageAsync(ScreenshotDocument document) =>
-        clipboard.SetImagePngAsync(Render(document, ScreenshotFileFormat.Png));
-
-    public Task<UploadResult> SaveToNextcloudAsync(
+    public async Task<LocalScreenshotResult> CopyImageAsync(
         ScreenshotDocument document,
         NextcloudConnectionSettings settings,
         ScreenshotOutputSettings outputSettings,
-        CancellationToken cancellationToken = default) =>
-        UploadAsync(document, settings with { CreatePublicLink = false }, outputSettings, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        LocalScreenshotResult saved = await SaveLocalAsync(document, settings, outputSettings, cancellationToken);
+        await clipboard.SetImagePngAsync(Render(document, ScreenshotFileFormat.Png));
+        return saved;
+    }
+
+    public async Task<LocalScreenshotResult> SaveToNextcloudAsync(
+        ScreenshotDocument document,
+        NextcloudConnectionSettings settings,
+        ScreenshotOutputSettings outputSettings,
+        bool showInFolder = false,
+        CancellationToken cancellationToken = default)
+    {
+        LocalScreenshotResult saved = await SaveLocalAsync(document, settings, outputSettings, cancellationToken);
+        if (showInFolder)
+        {
+            await filePresenter.ShowInFolderAsync(saved, cancellationToken);
+        }
+
+        return saved;
+    }
 
     public async Task<UploadResult> UploadAndCopyLinkAsync(
         ScreenshotDocument document,
@@ -27,20 +46,22 @@ public sealed class ScreenshotUploadWorkflow(
         CancellationToken cancellationToken = default)
     {
         byte[] rendered = Render(document, outputSettings.Format);
-        UploadResult result = await UploadAsync(document, settings, outputSettings, cancellationToken, rendered);
+        ScreenshotUpload upload = CreateUpload(document, outputSettings, rendered);
+        await localStore.SaveAsync(upload, settings, cancellationToken);
+        UploadResult result = await storageClient.UploadAsync(upload, settings, cancellationToken);
         if (result.PublicUrl is not null)
         {
             await clipboard.SetTextAsync(result.PublicUrl.ToString());
         }
         else
         {
-            await clipboard.SetImagePngAsync(rendered);
+            await clipboard.SetImagePngAsync(Render(document, ScreenshotFileFormat.Png));
         }
 
         return result;
     }
 
-    private async Task<UploadResult> UploadAsync(
+    private async Task<LocalScreenshotResult> SaveLocalAsync(
         ScreenshotDocument document,
         NextcloudConnectionSettings settings,
         ScreenshotOutputSettings outputSettings,
@@ -48,11 +69,19 @@ public sealed class ScreenshotUploadWorkflow(
         byte[]? rendered = null)
     {
         rendered ??= Render(document, outputSettings.Format);
+        ScreenshotUpload upload = CreateUpload(document, outputSettings, rendered);
+        return await localStore.SaveAsync(upload, settings, cancellationToken);
+    }
+
+    private static ScreenshotUpload CreateUpload(
+        ScreenshotDocument document,
+        ScreenshotOutputSettings outputSettings,
+        byte[] rendered)
+    {
         string extension = outputSettings.Format == ScreenshotFileFormat.Jpeg ? "jpg" : "png";
         string contentType = outputSettings.Format == ScreenshotFileFormat.Jpeg ? "image/jpeg" : "image/png";
         string filename = BuildFileName(outputSettings.FileNamePattern, document.Source.WindowTitle, extension);
-        ScreenshotUpload upload = new(filename, rendered, contentType, DateTimeOffset.UtcNow);
-        return await storageClient.UploadAsync(upload, settings, cancellationToken);
+        return new ScreenshotUpload(filename, rendered, contentType, DateTimeOffset.UtcNow);
     }
 
     private static string BuildFileName(string pattern, string? windowTitle, string extension)

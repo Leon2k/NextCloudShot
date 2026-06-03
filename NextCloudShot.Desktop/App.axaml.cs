@@ -37,7 +37,9 @@ public sealed partial class App : Application
             _settingsWindow = mainWindow;
             DesktopClipboardService clipboard = new(() =>
                 desktop.Windows.FirstOrDefault(window => window.IsActive)?.Clipboard ?? mainWindow.Clipboard);
-            ScreenshotUploadWorkflow uploadWorkflow = new(renderer, storage, clipboard);
+            ILocalScreenshotStore localStore = new NextcloudDesktopLocalScreenshotStore();
+            IScreenshotFilePresenter filePresenter = new WindowsScreenshotFilePresenter();
+            ScreenshotUploadWorkflow uploadWorkflow = new(renderer, storage, clipboard, localStore, filePresenter);
 
             if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
             {
@@ -112,7 +114,7 @@ public sealed partial class App : Application
 
     private static WindowIcon CreateTrayWindowIcon()
     {
-        using Stream icon = AssetLoader.Open(new Uri("avares://NextCloudShot.Desktop/Assets/app-icon.ico"));
+        using Stream icon = AssetLoader.Open(new Uri("avares://NextCloudShot.Desktop/Assets/app-tray.ico"));
         return new WindowIcon(icon);
     }
 }
